@@ -1,0 +1,160 @@
+.page {
+  width: min(1440px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 120px;
+}
+
+.topBanner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.9fr);
+  gap: 24px;
+  align-items: end;
+  margin-bottom: 24px;
+}
+
+.brandBlock {
+  display: grid;
+  gap: 14px;
+}
+
+.brandMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 720px;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.bannerAside {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+}
+
+.heroNotice {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.78fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.mainColumn {
+  display: grid;
+  gap: 24px;
+}
+
+.rail {
+  position: sticky;
+  top: 20px;
+}
+
+.railCard {
+  display: grid;
+  gap: 18px;
+}
+
+.railHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.railTitle {
+  margin: 6px 0 0;
+  font-size: 1.35rem;
+}
+
+.activityNote {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(97, 48, 27, 0.06);
+  color: var(--ink-strong);
+  line-height: 1.7;
+}
+
+.previewStack {
+  display: grid;
+  gap: 14px;
+}
+
+.previewMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: center;
+  color: var(--ink-soft);
+}
+
+.previewList {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 10px;
+  color: var(--ink-soft);
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nextStep {
+  margin: 0;
+  padding-left: 14px;
+  border-left: 3px solid rgba(155, 45, 36, 0.35);
+  color: var(--ink-strong);
+}
+
+.resetButton {
+  justify-self: start;
+}
+
+.floatingCta {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 20;
+  box-shadow: 0 16px 30px rgba(90, 51, 26, 0.22);
+}
+
+@media (max-width: 1024px) {
+  .topBanner,
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rail {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    width: min(100%, calc(100% - 20px));
+    padding-top: 20px;
+  }
+
+  .floatingCta {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: calc(100% - 20px);
+    justify-content: center;
+  }
+}
+

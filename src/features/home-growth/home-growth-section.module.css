@@ -1,0 +1,143 @@
+.root {
+  display: grid;
+  gap: 24px;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.metricsCard,
+.traitCard {
+  align-content: start;
+}
+
+.metricsHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+.metricsValue {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4vw, 3.5rem);
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summaryCell {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.summaryCell span {
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.traitHeader,
+.fateHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+.subTitle {
+  margin: 6px 0 0;
+  font-size: 1.45rem;
+}
+
+.traitList,
+.fateList {
+  display: grid;
+  gap: 14px;
+}
+
+.fateSection {
+  display: grid;
+  gap: 16px;
+}
+
+.fateList {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.fateCard {
+  align-content: start;
+}
+
+.fateMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.fateTitle {
+  margin: 6px 0 0;
+  font-size: 1.25rem;
+}
+
+.tensionRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.tensionTrack {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(88, 58, 36, 0.08);
+}
+
+.tensionFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #e0b766, #9b2d24);
+}
+
+.reward {
+  margin: 0;
+  color: var(--seal-red);
+}
+
+@media (max-width: 1080px) {
+  .topGrid,
+  .fateList {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .traitHeader,
+  .fateHeader {
+    flex-direction: column;
+    align-items: start;
+  }
+}
+
