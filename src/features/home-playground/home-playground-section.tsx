@@ -49,6 +49,9 @@ const getModePresentation = (modeId: string) => modePresentation[modeId as keyof
 export interface HomePlaygroundSectionProps {
   gameplayModes: GameplayModeCard[];
   creationHighlights: CreationHighlight[];
+  selectedAncestorName?: string;
+  selectedMoodValue?: number;
+  selectedTraitTags?: string[];
   onRequestMode?: (modeId: string) => void | Promise<void>;
   onPreviewCreation?: (creationId: string) => void | Promise<void>;
 }
@@ -56,6 +59,9 @@ export interface HomePlaygroundSectionProps {
 export function HomePlaygroundSection({
   gameplayModes,
   creationHighlights,
+  selectedAncestorName,
+  selectedMoodValue,
+  selectedTraitTags = [],
   onRequestMode,
   onPreviewCreation,
 }: HomePlaygroundSectionProps) {
@@ -64,18 +70,29 @@ export function HomePlaygroundSection({
       <SectionHeading
         eyebrow="Interactive Entry"
         title="玩法入口"
-        description="四道玩法题签只负责选择舞台，具体玩法界面统一在右侧首页控制台展开。作品互评不再单列，而是并入跨时代创作与现代命题重构的结果区。"
+        description="先从这里选择玩法，再在下方玩法工坊里真正操作。作品互评会并入创作类玩法的结果区。"
       />
 
       <div className={styles.stageNote}>
         <p className={styles.stageCopy}>
-          点击任一玩法后，右侧控制台会切换成对应的交互界面；这里保留入口差异和传播样张预览，不再重复渲染完整工坊。
+          点击任一玩法后，下方会切换到对应的可玩工坊；这里保留入口差异和传播样张预览。
         </p>
         <div className={styles.stageSignals} aria-label="玩法区状态总览">
           <TagPill tone="seal">{gameplayModes.length} 个入口已挂载</TagPill>
-          <TagPill tone="seal">右侧控制台承载玩法</TagPill>
+          <TagPill tone="seal">下方工坊可直接游玩</TagPill>
           <TagPill tone="muted">互评并入创作结果</TagPill>
           <TagPill tone="muted">{creationHighlights.length} 条传播样张</TagPill>
+          {selectedAncestorName ? (
+            <TagPill tone="muted">{selectedAncestorName} 的玩法视角</TagPill>
+          ) : null}
+          {typeof selectedMoodValue === "number" ? (
+            <TagPill tone="muted">情绪指数 {selectedMoodValue}</TagPill>
+          ) : null}
+          {selectedTraitTags.slice(0, 2).map((tag) => (
+            <TagPill key={tag} tone="muted">
+              {tag}
+            </TagPill>
+          ))}
         </div>
       </div>
 
@@ -118,7 +135,7 @@ export function HomePlaygroundSection({
 
               <div className={styles.modeFooter}>
                 <p className={styles.modePrompt}>
-                  {presentation?.footer ?? "当前只开放首页预览层，不落地实际玩法。"}
+                  {presentation?.footer ?? "当前已开放玩法工坊，可继续生成实际结果。"}
                 </p>
                 <p className="muted-note">{mode.interactionHint}</p>
               </div>

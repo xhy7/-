@@ -1,0 +1,224 @@
+.chatShell {
+  display: grid;
+  gap: 16px;
+}
+
+.chatHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+.chatTitle {
+  margin: 6px 0 0;
+  font-size: 1.35rem;
+}
+
+.chatSubtitle {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.statCard {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 251, 243, 0.7);
+  border: 1px solid rgba(88, 58, 36, 0.1);
+}
+
+.statCard span {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.statCard strong {
+  font-size: 1.12rem;
+}
+
+.promptRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.promptChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid rgba(88, 58, 36, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 251, 243, 0.82);
+  color: var(--ink-strong);
+}
+
+.timeline {
+  display: grid;
+  gap: 14px;
+}
+
+.emptyState {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 251, 243, 0.72);
+}
+
+.messageRow {
+  display: grid;
+  gap: 10px;
+}
+
+.messageMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+}
+
+.userBubble,
+.replyBubble {
+  max-width: min(85%, 720px);
+  padding: 14px 16px;
+  border-radius: 20px;
+  line-height: 1.75;
+}
+
+.userBubble {
+  justify-self: end;
+  border-top-right-radius: 8px;
+  background: rgba(155, 45, 36, 0.1);
+}
+
+.replyBubble {
+  justify-self: start;
+  border-top-left-radius: 8px;
+  background: rgba(255, 251, 243, 0.9);
+  border: 1px solid rgba(88, 58, 36, 0.08);
+}
+
+.replyMeta {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.composer {
+  display: grid;
+  gap: 14px;
+}
+
+.composerGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.composerField {
+  display: grid;
+  gap: 8px;
+}
+
+.composerField span {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.composerField input,
+.composerField select,
+.composerField textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(88, 58, 36, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 251, 243, 0.86);
+  color: var(--ink-strong);
+}
+
+.composerField textarea {
+  resize: vertical;
+}
+
+.composerFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+}
+
+.deltaList {
+  display: grid;
+  gap: 10px;
+}
+
+.deltaItem {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 251, 243, 0.62);
+}
+
+.deltaItemHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.deltaValue {
+  color: var(--seal-red);
+  font-size: 0.92rem;
+}
+
+.memoryList {
+  display: grid;
+  gap: 10px;
+}
+
+.memoryItem {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 251, 243, 0.62);
+}
+
+.memoryItem time {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1024px) {
+  .statsGrid,
+  .composerGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .chatHeader,
+  .composerFooter {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .userBubble,
+  .replyBubble {
+    max-width: 100%;
+  }
+}

@@ -10,6 +10,79 @@ export const homePageData: HomePageData = {
   seasonLabel: "卷一 · 东坡试炼季",
   heroNotice: "首页只开放主舞台与意图预览，后续玩法保持接口冻结。",
   floatingActionLabel: "召唤今日祖宗",
+  shellStatuses: [
+    {
+      id: "shell-mode",
+      label: "运行模式",
+      value: "Mock First",
+      note: "首页按钮只回填意图和预览，不进入二级页面。",
+      tone: "seal",
+    },
+    {
+      id: "shell-contract",
+      label: "接口状态",
+      value: "契约冻结中",
+      note: "首页三大功能区只消费共享合同，不额外加临时 props。",
+      tone: "ink",
+    },
+    {
+      id: "shell-assembly",
+      label: "装配顺序",
+      value: "英雄台 -> 养成中枢 -> 玩法入口",
+      note: "首页骨架固定，后续功能迭代只在既有壳层内扩展。",
+      tone: "muted",
+    },
+  ],
+  sectionOrder: [
+    {
+      id: "hero-stage",
+      eyebrow: "Step 01",
+      title: "英雄台",
+      summary: "先锁定当前主推祖宗与切换名单，保证首页第一眼能看懂主角是谁。",
+    },
+    {
+      id: "growth-core",
+      eyebrow: "Step 02",
+      title: "养成中枢",
+      summary: "集中承载 MoodIndex、Trait Vector 与命运节点预告，展示培养进度。",
+    },
+    {
+      id: "playground-entry",
+      eyebrow: "Step 03",
+      title: "玩法入口",
+      summary: "收束 future intent 玩法与创作传播预览，维持首页中枢定位。",
+    },
+  ],
+  aiSandbox: {
+    helperTitle: "AI Reply Sandbox",
+    helperText:
+      "输入一句现代语境或互动台词，按人物 persona、moodIndex、traitVector 与 sceneType 生成单角色文字回复。",
+    defaultAncestorId: "su-shi",
+    supportedModes: ["prototype", "ooc"],
+    sceneOptions: [
+      {
+        id: "daily-chat",
+        label: "日常对话",
+        description: "适合闲聊、安慰、吐槽和轻量互动。",
+      },
+      {
+        id: "conflict-mediation",
+        label: "冲突调停",
+        description: "更强调立场、判断与关系张力。",
+      },
+      {
+        id: "creative-feedback",
+        label: "作品互评",
+        description: "适合让角色点评文案、诗句和表达方式。",
+      },
+      {
+        id: "event-reaction",
+        label: "事件反应",
+        description: "模拟角色对突发情境的即时回应。",
+      },
+    ],
+    maxUserMessageLength: 120,
+  },
   featuredAncestor: {
     id: "su-shi",
     name: "苏轼",
@@ -296,4 +369,3 @@ export const modeIntentPreviews: Record<string, ModeIntentPreview> = {
     nextStepLabel: "保持模式入口卡可点，但结果只落在首页控制台。",
   },
 };
-

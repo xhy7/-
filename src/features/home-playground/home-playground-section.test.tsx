@@ -20,7 +20,7 @@ describe("HomePlaygroundSection", () => {
 
     expect(screen.getByText("跨时空吵架")).toBeInTheDocument();
     expect(screen.getByText("《深夜加班赋》")).toBeInTheDocument();
-    expect(screen.getByText("右侧控制台承载玩法")).toBeInTheDocument();
+    expect(screen.getByText("下方工坊可直接游玩")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "预览争端脚本" }));
     await user.click(screen.getByRole("button", { name: "预览提问意图" }));
