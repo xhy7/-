@@ -64,6 +64,16 @@
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 4vw, 3.5rem);
   animation: metricsFadeIn 0.6s ease-out;
+  position: relative;
+  display: inline-block;
+}
+
+.metricsValueBreathing {
+  animation: metricsFadeIn 0.6s ease-out, moodBreathe 3s ease-in-out 0.6s infinite;
+}
+
+.metricsValueDimmed {
+  animation: metricsFadeIn 0.6s ease-out, moodDim 4s ease-in-out 0.6s infinite;
 }
 
 @keyframes metricsFadeIn {
@@ -75,6 +85,63 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes moodBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes moodDim {
+  0%, 100% { opacity: 1; filter: grayscale(0.3); }
+  50% { opacity: 0.7; filter: grayscale(0.3); }
+}
+
+@keyframes particleRise {
+  0% {
+    opacity: 0.8;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.3);
+  }
+}
+
+.particleContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: particleRise 1.2s ease-out 1 forwards;
+}
+
+.particle:nth-child(1) {
+  left: 40%;
+  animation-delay: 0ms;
+}
+
+.particle:nth-child(2) {
+  left: 55%;
+  animation-delay: 200ms;
+}
+
+.particle:nth-child(3) {
+  left: 48%;
+  animation-delay: 400ms;
 }
 
 .summaryGrid {
@@ -89,12 +156,14 @@
   padding: 14px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.45);
-  transition: transform 180ms ease, background 180ms ease;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
 }
 
 .summaryCell:hover {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(176, 138, 64, 0.2);
 }
 
 .summaryCell span {
@@ -106,6 +175,27 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.tagStagger {
+  display: inline-block;
+  animation: tagSlideIn 0.4s ease-out both;
+}
+
+@keyframes tagSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0);
+  }
+}
+
+.tagStagger:hover {
+  transform: translateY(-2px) rotate(1deg);
+  transition: transform 150ms ease;
 }
 
 .traitHeader,
@@ -127,6 +217,22 @@
   gap: 14px;
 }
 
+.traitEmpty {
+  text-align: center;
+  padding: 32px 16px;
+  position: relative;
+}
+
+.traitEmpty::before {
+  content: "·";
+  font-size: 3rem;
+  color: var(--ink-soft);
+  opacity: 0.15;
+  line-height: 1;
+  display: block;
+  margin-bottom: 8px;
+}
+
 .fateSection {
   display: grid;
   gap: 16px;
@@ -139,12 +245,90 @@
 .fateCard {
   align-content: start;
   position: relative;
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition: transform 200ms ease, box-shadow 200ms ease, max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 200ms ease;
+  overflow: hidden;
+  max-height: 280px;
+  border: 1px solid var(--border-soft);
 }
 
 .fateCard:hover {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(88, 58, 36, 0.12);
+  border-color: rgba(176, 138, 64, 0.3);
+}
+
+.fateCardExpanded {
+  max-height: 700px;
+  box-shadow: 0 12px 36px rgba(88, 58, 36, 0.18);
+}
+
+.fateCardContent {
+  transition: opacity 0.3s ease, max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+  max-height: 200px;
+  position: relative;
+  padding: 12px 0;
+}
+
+.fateCardExpanded .fateCardContent {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.fateCard::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease 0.2s;
+}
+
+.fateCardExpanded::after {
+  opacity: 0.6;
+}
+
+.fateCardExpanded .fateCardContent::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease 0.2s;
+}
+
+.fateCardExpanded .fateCardContent::before {
+  opacity: 0.6;
+}
+
+.fateCardHighTension {
+  border-color: rgba(194, 76, 63, 0.3);
+}
+
+.fateCardHighTension::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--seal-red), transparent);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.fateCardExpanded.fateCardHighTension::before {
+  top: 16px;
 }
 
 .fateMeta {
@@ -176,6 +360,7 @@
 
 .tensionTrack--high {
   background: rgba(155, 45, 36, 0.12);
+  animation: tensionPulse 2s ease-in-out infinite;
 }
 
 .tensionTrack--mid {
@@ -186,18 +371,21 @@
   background: rgba(88, 58, 36, 0.06);
 }
 
+@keyframes tensionPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(194, 76, 63, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(194, 76, 63, 0);
+  }
+}
+
 .tensionFill {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #e0b766, #9b2d24);
-  animation: tensionGrow 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: width;
-}
-
-@keyframes tensionGrow {
-  from {
-    width: 0;
-  }
 }
 
 .tensionFill--high {
@@ -223,6 +411,17 @@
   padding: 32px 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+.fateEmpty::before {
+  content: "·";
+  font-size: 3rem;
+  color: var(--ink-soft);
+  opacity: 0.15;
+  line-height: 1;
+  display: block;
+  margin-bottom: 8px;
 }
 
 @media (max-width: 1080px) {
@@ -253,12 +452,27 @@
 
 @media (prefers-reduced-motion: reduce) {
   .metricsValue,
-  .tensionFill {
+  .metricsValueBreathing,
+  .metricsValueDimmed,
+  .tensionTrack--high,
+  .tagStagger,
+  .particle {
     animation: none;
   }
 
   .fateCard,
-  .summaryCell {
+  .fateCardContent,
+  .summaryCell,
+  .tagRow .tagStagger,
+  .tensionFill {
     transition: none;
+  }
+
+  .fateCard {
+    max-height: none;
+  }
+
+  .fateCardContent {
+    max-height: none;
   }
 }

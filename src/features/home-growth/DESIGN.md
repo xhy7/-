@@ -237,9 +237,16 @@ home-page-client.tsx 中的 growthProps.onOpenFatePreview 处理
   from { width: 0; }
 }
 
-.meter__fill,
-.tensionFill {
+.meter__fill {
   animation: meter-fill 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+.tensionFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #e0b766, #9b2d24);
+  transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: width;
 }
 
 /* 心情数值入场动画 */
@@ -279,6 +286,192 @@ home-page-client.tsx 中的 growthProps.onOpenFatePreview 处理
 
 ```
 命运节点「乌台诗案」已聚焦。触发提示：需要 MoodIndex ≥ 75，且本周至少一次正向投喂。
+```
+
+### 4.6 趣味交互增强（养成游戏感）
+
+#### 4.6.1 心情数值"呼吸"动效
+
+**设计意图**：让 MoodIndex 像古人"情绪脉搏"一样有生命力
+
+| 条件 | 动效 |
+|---|---|
+| `value ≥ 70` | 轻微缩放脉冲 `scale(1.0) → scale(1.02) → scale(1.0)`，周期 3s，`ease-in-out` |
+| `value < 30` | 灰度滤镜 `grayscale(0.3)` + 缓慢透明度闪烁 `opacity 0.7 → 1.0`，周期 4s |
+| `delta > 0` | 数值变化瞬间显示金色粒子上升微动效（3 个 `<span>` 元素 + `@keyframes particle-rise`，一次性动画） |
+
+```css
+@keyframes mood-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes mood-dim {
+  0%, 100% { opacity: 1; filter: grayscale(0.3); }
+  50% { opacity: 0.7; filter: grayscale(0.3); }
+}
+
+@keyframes particle-rise {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.5);
+  }
+}
+
+.metricsValue--breathing {
+  animation: mood-breathe 3s ease-in-out infinite;
+}
+
+.metricsValue--dimmed {
+  animation: mood-dim 4s ease-in-out infinite;
+}
+```
+
+#### 4.6.2 命运节点"卷轴展开"交互
+
+**设计意图**：点击"聚焦节点"时，模拟展开卷轴的仪式感
+
+**交互流程**：
+
+```
+用户点击 "聚焦节点"
+    │
+    ▼
+卡片高度从当前值动画展开到完整描述（max-height: 280px → max-height: 700px）
+    │
+    ▼
+内容区域（fateCardContent）同步展开（max-height: 200px → max-height: 500px）
+    │
+    ▼
+顶部出现"卷轴轴头"装饰元素（左右各一个圆形装饰，模拟卷轴木轴）
+    │
+    ▼
+底部出现"合上卷轴"按钮，可触发动画反向收起
+    │
+    ▼
+同时调用 onOpenFatePreview(fateId) 更新右侧控制台
+```
+
+```css
+.fateCard {
+  max-height: 280px;
+  transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.fateCardExpanded {
+  max-height: 700px;
+}
+
+.fateCardContent {
+  max-height: 200px;
+  transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
+}
+
+.fateCardExpanded .fateCardContent {
+  max-height: 500px;
+  opacity: 1;
+}
+
+/* 卷轴轴头装饰（初始隐藏，展开时淡入） */
+.fateCard::before,
+.fateCard::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink-strong);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease 0.2s;
+}
+
+.fateCard::before { left: 12px; }
+.fateCard::after { right: 12px; }
+
+.fateCardExpanded::before,
+.fateCardExpanded::after {
+  opacity: 0.6;
+}
+```
+
+#### 4.6.3 张力值"绷紧"视觉反馈
+
+**设计意图**：高张力节点要有"即将触发"的紧张感
+
+| 张力区间 | 视觉反馈 |
+|---|---|
+| `tension ≥ 80` | 进度条边缘微弱"电光"闪烁（`box-shadow` 脉冲），卡片边框朱红色 |
+| `50 ≤ tension < 80` | 进度条描金色，无额外动效 |
+| `tension < 50` | 进度条墨色，静态展示 |
+
+```css
+@keyframes tension-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(194, 76, 63, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(194, 76, 63, 0);
+  }
+}
+
+.tensionTrack--high {
+  animation: tension-pulse 2s ease-in-out infinite;
+}
+
+/* 高张力卡片顶部红线 */
+.fateCardHighTension {
+  border-color: rgba(194, 76, 63, 0.3);
+}
+
+.fateCardHighTension::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--seal-red), transparent);
+  opacity: 0.8;
+}
+
+/* 展开时红线位置上移，避免与轴头装饰重叠 */
+.fateCardExpanded.fateCardHighTension::before {
+  top: 16px;
+}
+```
+
+#### 4.6.4 活跃标签"抽签"动效
+
+**设计意图**：标签像"求签筒"一样有微随机感
+
+```css
+@keyframes tag-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) rotate(0);
+  }
+}
+
+.tagStagger {
+  display: inline-block;
+  animation: tag-slide-in 0.4s ease-out both;
+}
+
+/* Hover 微旋转 */
+.tagStagger:hover {
+  transform: translateY(-2px) rotate(1deg);
+  transition: transform 150ms ease;
+}
 ```
 
 ---

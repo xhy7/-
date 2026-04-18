@@ -144,4 +144,197 @@ describe("HomeGrowthSection", () => {
       screen.getByText(/再获得 22 枚金叶子/),
     ).toBeInTheDocument();
   });
+
+  it("toggles fate card expansion on button click", async () => {
+    const user = userEvent.setup();
+    const onOpenFatePreview = vi.fn();
+
+    render(
+      <HomeGrowthSection
+        nurtureSummary={homePageData.nurtureSummary}
+        fatePreviews={homePageData.fatePreviews}
+        onOpenFatePreview={onOpenFatePreview}
+      />,
+    );
+
+    const buttons = screen.getAllByRole("button", { name: "聚焦节点" });
+    await user.click(buttons[0]);
+
+    expect(onOpenFatePreview).toHaveBeenCalledWith("wutai-poem-case");
+
+    const expandButton = screen.getByRole("button", { name: "合上卷轴" });
+    expect(expandButton).toBeInTheDocument();
+
+    await user.click(expandButton);
+
+    const focusButtons = screen.getAllByRole("button", { name: "聚焦节点" });
+    expect(focusButtons.length).toBe(3);
+  });
+
+  it("applies breathing animation class when mood value >= 70", () => {
+    render(
+      <HomeGrowthSection
+        nurtureSummary={homePageData.nurtureSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const moodValue = screen.getByText("78");
+    expect(moodValue.className).toContain("metricsValueBreathing");
+  });
+
+  it("applies dimmed animation class when mood value < 30", () => {
+    const lowMoodSummary = {
+      ...homePageData.nurtureSummary,
+      moodSnapshot: {
+        ...homePageData.nurtureSummary.moodSnapshot,
+        value: 20,
+        delta: -5,
+      },
+    };
+
+    render(
+      <HomeGrowthSection
+        nurtureSummary={lowMoodSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const moodValue = screen.getByText("20");
+    expect(moodValue.className).toContain("metricsValueDimmed");
+  });
+
+  it("applies high tension class when fate tension >= 80", () => {
+    render(
+      <HomeGrowthSection
+        nurtureSummary={homePageData.nurtureSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const wutaiCard = screen.getByText("乌台诗案").closest("article");
+    expect(wutaiCard).toBeInTheDocument();
+    expect(wutaiCard!.className).toContain("fateCardHighTension");
+  });
+
+  it("applies both expanded and high tension classes correctly", () => {
+    render(
+      <HomeGrowthSection
+        nurtureSummary={homePageData.nurtureSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const wutaiCard = screen.getByText("乌台诗案").closest("article");
+    expect(wutaiCard).toBeInTheDocument();
+    expect(wutaiCard!.className).toContain("fateCardHighTension");
+    expect(wutaiCard!.className).not.toContain("fateCardExpanded");
+  });
+
+  it("renders empty traitVector placeholder", () => {
+    const emptyTraitSummary = {
+      ...homePageData.nurtureSummary,
+      traitVector: [],
+    };
+
+    render(
+      <HomeGrowthSection
+        nurtureSummary={emptyTraitSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    expect(screen.getByText("性格向量数据待补充。")).toBeInTheDocument();
+  });
+
+  it("hides tagRow when activeTags is empty", () => {
+    const emptyTagsSummary = {
+      ...homePageData.nurtureSummary,
+      activeTags: [],
+    };
+
+    render(
+      <HomeGrowthSection
+        nurtureSummary={emptyTagsSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const tagRow = document.querySelector("._tagRow_");
+    expect(tagRow).toBeNull();
+  });
+
+  it("renders golden particles when delta > 0", () => {
+    render(
+      <HomeGrowthSection
+        nurtureSummary={homePageData.nurtureSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const metricsValue = screen.getByText("78");
+    const particleContainer = metricsValue.querySelector("span");
+    expect(particleContainer).toBeInTheDocument();
+    expect(particleContainer!.querySelectorAll("span").length).toBe(3);
+  });
+
+  it("does not render particles when delta <= 0", () => {
+    const negativeDeltaSummary = {
+      ...homePageData.nurtureSummary,
+      moodSnapshot: {
+        ...homePageData.nurtureSummary.moodSnapshot,
+        delta: -5,
+      },
+    };
+
+    render(
+      <HomeGrowthSection
+        nurtureSummary={negativeDeltaSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const metricsValue = screen.getByText("78");
+    const particleContainer = metricsValue.querySelector("span");
+    expect(particleContainer).toBeNull();
+  });
+
+  it("clamps trait value to [0, 100] range", () => {
+    const outOfRangeSummary = {
+      ...homePageData.nurtureSummary,
+      traitVector: [
+        {
+          id: "test",
+          label: "测试",
+          value: 150,
+          max: 100,
+          note: "超出范围",
+          tone: "ink" as const,
+        },
+      ],
+    };
+
+    render(
+      <HomeGrowthSection
+        nurtureSummary={outOfRangeSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const meter = screen.getByRole("meter", { name: /测试/ });
+    expect(meter.getAttribute("aria-valuenow")).toBe("100");
+  });
+
+  it("uses progressbar role for tension track", () => {
+    render(
+      <HomeGrowthSection
+        nurtureSummary={homePageData.nurtureSummary}
+        fatePreviews={homePageData.fatePreviews}
+      />,
+    );
+
+    const progressbars = screen.getAllByRole("progressbar");
+    expect(progressbars.length).toBe(3);
+    expect(progressbars[0].getAttribute("aria-valuenow")).toBe("84");
+  });
 });

@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import type { FatePreview, NurtureSummary } from "@/shared/contracts/home";
 import {
   InkButton,
@@ -30,12 +31,30 @@ const getTensionStatus = (tension: number): string => {
   return TENSION_STATUS_LABELS.low;
 };
 
+const getMoodAnimationClass = (value: number): string => {
+  if (value >= 70) return styles.metricsValueBreathing;
+  if (value < 30) return styles.metricsValueDimmed;
+  return "";
+};
+
 export function HomeGrowthSection({
   nurtureSummary,
   fatePreviews,
   onOpenFatePreview,
 }: HomeGrowthSectionProps) {
+  const [expandedFateId, setExpandedFateId] = useState<string | null>(null);
   const deltaTone = getDeltaTone(nurtureSummary.moodSnapshot.delta);
+  const moodAnimationClass = getMoodAnimationClass(
+    nurtureSummary.moodSnapshot.value,
+  );
+
+  const handleToggleFate = useCallback(
+    (fateId: string) => {
+      void onOpenFatePreview?.(fateId);
+      setExpandedFateId((prev) => (prev === fateId ? null : fateId));
+    },
+    [onOpenFatePreview],
+  );
 
   return (
     <section className={`${styles.root} section-shell`}>
@@ -50,8 +69,15 @@ export function HomeGrowthSection({
           <div className={styles.metricsHeader}>
             <div>
               <p className="eyebrow">{nurtureSummary.moodSnapshot.label}</p>
-              <h3 className={styles.metricsValue}>
+              <h3 className={`${styles.metricsValue} ${moodAnimationClass}`}>
                 {nurtureSummary.moodSnapshot.value}
+                {nurtureSummary.moodSnapshot.delta > 0 && (
+                  <span className={styles.particleContainer} aria-hidden="true">
+                    <span className={styles.particle} />
+                    <span className={styles.particle} />
+                    <span className={styles.particle} />
+                  </span>
+                )}
               </h3>
               <TagPill tone={deltaTone}>
                 {nurtureSummary.moodSnapshot.statusLabel}
@@ -83,11 +109,19 @@ export function HomeGrowthSection({
             </div>
           </div>
 
-          <div className={styles.tagRow}>
-            {nurtureSummary.activeTags.map((tag) => (
-              <TagPill key={tag}>{tag}</TagPill>
-            ))}
-          </div>
+          {nurtureSummary.activeTags.length > 0 && (
+            <div className={styles.tagRow}>
+              {nurtureSummary.activeTags.map((tag, index) => (
+                <span
+                  key={tag}
+                  className={styles.tagStagger}
+                  style={{ animationDelay: `${index * 80}ms` } as React.CSSProperties}
+                >
+                  <TagPill>{tag}</TagPill>
+                </span>
+              ))}
+            </div>
+          )}
 
           <p className="muted-note">{nurtureSummary.nextBondMilestone}</p>
         </article>
@@ -98,18 +132,24 @@ export function HomeGrowthSection({
             <h3 className={styles.subTitle}>性格向量</h3>
           </div>
 
-          <div className={styles.traitList}>
-            {nurtureSummary.traitVector.map((trait) => (
-              <ProgressMeter
-                key={trait.id}
-                label={trait.label}
-                value={trait.value}
-                max={trait.max}
-                note={trait.note}
-                tone={trait.tone}
-              />
-            ))}
-          </div>
+          {nurtureSummary.traitVector.length === 0 ? (
+            <div className={styles.traitEmpty}>
+              <p className="muted-note">性格向量数据待补充。</p>
+            </div>
+          ) : (
+            <div className={styles.traitList}>
+              {nurtureSummary.traitVector.map((trait) => (
+                <ProgressMeter
+                  key={trait.id}
+                  label={trait.label}
+                  value={Math.max(0, Math.min(100, trait.value ?? 0))}
+                  max={trait.max}
+                  note={trait.value != null ? trait.note : "数据待补充"}
+                  tone={trait.tone}
+                />
+              ))}
+            </div>
+          )}
         </article>
       </div>
 
@@ -133,11 +173,13 @@ export function HomeGrowthSection({
             {fatePreviews.map((fate) => {
               const tensionTone = getTensionTone(fate.tension);
               const statusLabel = fate.statusLabel || getTensionStatus(fate.tension);
+              const isExpanded = expandedFateId === fate.id;
+              const isHighTension = fate.tension >= TENSION_THRESHOLDS.high;
 
               return (
                 <article
                   key={fate.id}
-                  className={`${styles.fateCard} paper-card`}
+                  className={`${styles.fateCard} paper-card ${isExpanded ? styles.fateCardExpanded : ""} ${isHighTension ? styles.fateCardHighTension : ""}`}
                 >
                   <div className={styles.fateMeta}>
                     <div>
@@ -147,38 +189,37 @@ export function HomeGrowthSection({
                     <TagPill tone="seal">{statusLabel}</TagPill>
                   </div>
 
-                  <p className="section-body">{fate.description}</p>
+                  <div className={styles.fateCardContent}>
+                    <p className="section-body">{fate.description}</p>
 
-                  <div className={styles.tensionRow}>
-                    <span>张力值</span>
-                    <strong>{fate.tension}</strong>
-                  </div>
+                    <div className={styles.tensionRow}>
+                      <span>张力值</span>
+                      <strong>{fate.tension}</strong>
+                    </div>
 
-                  <div
-                    className={`${styles.tensionTrack} ${styles[`tensionTrack--${tensionTone}`]}`}
-                    aria-hidden="true"
-                    role="meter"
-                    aria-label={`张力值: ${fate.tension}%`}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-valuenow={fate.tension}
-                  >
                     <div
-                      className={`${styles.tensionFill} ${styles[`tensionFill--${tensionTone}`]}`}
-                      style={{ width: `${fate.tension}%` }}
-                    />
-                  </div>
+                      className={`${styles.tensionTrack} ${styles[`tensionTrack--${tensionTone}`]}`}
+                      role="progressbar"
+                      aria-label={`张力值: ${fate.tension}%`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={fate.tension}
+                    >
+                      <div
+                        className={`${styles.tensionFill} ${styles[`tensionFill--${tensionTone}`]}`}
+                        style={{ width: `${fate.tension}%` }}
+                      />
+                    </div>
 
-                  <p className="muted-note">{fate.triggerHint}</p>
-                  <p className={styles.reward}>{fate.rewardLabel}</p>
+                    <p className="muted-note">{fate.triggerHint}</p>
+                    <p className={styles.reward}>{fate.rewardLabel}</p>
+                  </div>
 
                   <InkButton
                     tone="ghost"
-                    onClick={() => {
-                      void onOpenFatePreview?.(fate.id);
-                    }}
+                    onClick={() => handleToggleFate(fate.id)}
                   >
-                    聚焦节点
+                    {isExpanded ? "合上卷轴" : "聚焦节点"}
                   </InkButton>
                 </article>
               );
