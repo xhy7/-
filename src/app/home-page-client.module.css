@@ -124,6 +124,110 @@
   justify-self: start;
 }
 
+.consoleSection,
+.consoleFields,
+.consoleActions,
+.outputPanel,
+.outputBlock,
+.reviewSection {
+  display: grid;
+  gap: 14px;
+}
+
+.consoleFields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field,
+.fieldFull {
+  display: grid;
+  gap: 8px;
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.fieldLabel,
+.outputLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+.select,
+.input,
+.textarea,
+.range {
+  width: 100%;
+}
+
+.select,
+.input,
+.textarea {
+  padding: 12px 14px;
+  border: 1px solid rgba(88, 58, 36, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 253, 248, 0.92);
+  color: var(--ink-strong);
+}
+
+.textarea {
+  min-height: 108px;
+  resize: vertical;
+}
+
+.range {
+  accent-color: var(--seal-red);
+}
+
+.consoleHintCard,
+.reviewSection {
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(88, 58, 36, 0.12);
+  background: rgba(255, 250, 242, 0.78);
+}
+
+.outputPanel {
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(88, 58, 36, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.92), rgba(247, 236, 218, 0.82)),
+    linear-gradient(135deg, rgba(155, 45, 36, 0.06), transparent 44%);
+}
+
+.outputHeader,
+.reviewHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+}
+
+.outputTitle,
+.reviewTitle {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.outputBlock {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 251, 243, 0.82);
+  border: 1px solid rgba(88, 58, 36, 0.1);
+}
+
+.outputText {
+  margin: 0;
+  color: var(--ink-strong);
+  font-family: var(--font-serif);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
 .floatingCta {
   position: fixed;
   right: 20px;
@@ -149,6 +253,16 @@
     padding-top: 20px;
   }
 
+  .consoleFields {
+    grid-template-columns: 1fr;
+  }
+
+  .outputHeader,
+  .reviewHeader {
+    flex-direction: column;
+    align-items: start;
+  }
+
   .floatingCta {
     left: 10px;
     right: 10px;
@@ -157,4 +271,3 @@
     justify-content: center;
   }
 }
-
