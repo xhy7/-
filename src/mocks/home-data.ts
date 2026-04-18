@@ -108,6 +108,7 @@ export const homePageData: HomePageData = {
       label: "MoodIndex",
       value: 78,
       delta: 12,
+      statusLabel: "微醺灵感",
       summary: "今日谈兴正盛，适合触发需要机锋与反转的玩法。",
       cause: "投喂东坡肉 + 减轻乌台诗案压力",
     },

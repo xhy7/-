@@ -67,6 +67,7 @@ export interface MoodSnapshot {
   label: string;
   value: number;
   delta: number;
+  statusLabel: string;
   summary: string;
   cause: string;
 }

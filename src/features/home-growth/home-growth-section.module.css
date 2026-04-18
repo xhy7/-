@@ -1,6 +1,17 @@
 .root {
   display: grid;
   gap: 24px;
+  position: relative;
+}
+
+.root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top left, rgba(176, 138, 64, 0.06), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(155, 45, 36, 0.05), transparent 25%);
 }
 
 .topGrid {
@@ -12,6 +23,33 @@
 .metricsCard,
 .traitCard {
   align-content: start;
+  position: relative;
+}
+
+.metricsCard::before {
+  content: "养";
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--seal-red);
+  opacity: 0.12;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}
+
+.traitCard::before {
+  content: "魂";
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--seal-red);
+  opacity: 0.12;
+  transform: rotate(-12deg);
+  pointer-events: none;
 }
 
 .metricsHeader {
@@ -25,6 +63,18 @@
   margin: 6px 0 0;
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 4vw, 3.5rem);
+  animation: metricsFadeIn 0.6s ease-out;
+}
+
+@keyframes metricsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .summaryGrid {
@@ -39,6 +89,12 @@
   padding: 14px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.45);
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+.summaryCell:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .summaryCell span {
@@ -82,6 +138,13 @@
 
 .fateCard {
   align-content: start;
+  position: relative;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.fateCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(88, 58, 36, 0.12);
 }
 
 .fateMeta {
@@ -111,15 +174,55 @@
   background: rgba(88, 58, 36, 0.08);
 }
 
+.tensionTrack--high {
+  background: rgba(155, 45, 36, 0.12);
+}
+
+.tensionTrack--mid {
+  background: rgba(176, 138, 64, 0.1);
+}
+
+.tensionTrack--low {
+  background: rgba(88, 58, 36, 0.06);
+}
+
 .tensionFill {
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #e0b766, #9b2d24);
+  animation: tensionGrow 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  will-change: width;
+}
+
+@keyframes tensionGrow {
+  from {
+    width: 0;
+  }
+}
+
+.tensionFill--high {
+  background: linear-gradient(90deg, #c24c3f, #9b2d24);
+}
+
+.tensionFill--mid {
+  background: linear-gradient(90deg, #d0ab5d, #b08a40);
+}
+
+.tensionFill--low {
+  background: linear-gradient(90deg, #8a7a60, #645247);
 }
 
 .reward {
   margin: 0;
   color: var(--seal-red);
+  font-weight: 500;
+}
+
+.fateEmpty {
+  text-align: center;
+  padding: 32px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 1080px) {
@@ -139,5 +242,23 @@
     flex-direction: column;
     align-items: start;
   }
+
+  .metricsCard::before,
+  .traitCard::before {
+    font-size: 1rem;
+    top: 8px;
+    right: 12px;
+  }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .metricsValue,
+  .tensionFill {
+    animation: none;
+  }
+
+  .fateCard,
+  .summaryCell {
+    transition: none;
+  }
+}

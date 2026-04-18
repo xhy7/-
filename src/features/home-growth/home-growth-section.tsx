@@ -6,6 +6,7 @@ import {
   TagPill,
 } from "@/shared/ui/primitives";
 
+import { TENSION_THRESHOLDS, TENSION_STATUS_LABELS } from "./constants";
 import styles from "./home-growth-section.module.css";
 
 export interface HomeGrowthSectionProps {
@@ -14,11 +15,28 @@ export interface HomeGrowthSectionProps {
   onOpenFatePreview?: (fateId: string) => void | Promise<void>;
 }
 
+const getDeltaTone = (delta: number): "seal" | "muted" =>
+  delta >= 0 ? "seal" : "muted";
+
+const getTensionTone = (tension: number): "high" | "mid" | "low" => {
+  if (tension >= TENSION_THRESHOLDS.high) return "high";
+  if (tension >= TENSION_THRESHOLDS.mid) return "mid";
+  return "low";
+};
+
+const getTensionStatus = (tension: number): string => {
+  if (tension >= TENSION_THRESHOLDS.high) return TENSION_STATUS_LABELS.high;
+  if (tension >= TENSION_THRESHOLDS.mid) return TENSION_STATUS_LABELS.mid;
+  return TENSION_STATUS_LABELS.low;
+};
+
 export function HomeGrowthSection({
   nurtureSummary,
   fatePreviews,
   onOpenFatePreview,
 }: HomeGrowthSectionProps) {
+  const deltaTone = getDeltaTone(nurtureSummary.moodSnapshot.delta);
+
   return (
     <section className={`${styles.root} section-shell`}>
       <SectionHeading
@@ -35,8 +53,11 @@ export function HomeGrowthSection({
               <h3 className={styles.metricsValue}>
                 {nurtureSummary.moodSnapshot.value}
               </h3>
+              <TagPill tone={deltaTone}>
+                {nurtureSummary.moodSnapshot.statusLabel}
+              </TagPill>
             </div>
-            <TagPill tone="seal">
+            <TagPill tone={deltaTone}>
               {nurtureSummary.moodSnapshot.delta >= 0 ? "+" : ""}
               {nurtureSummary.moodSnapshot.delta}
             </TagPill>
@@ -101,47 +122,70 @@ export function HomeGrowthSection({
           <TagPill tone="muted">Future Hook Only</TagPill>
         </div>
 
-        <div className={styles.fateList}>
-          {fatePreviews.map((fate) => (
-            <article key={fate.id} className={`${styles.fateCard} paper-card`}>
-              <div className={styles.fateMeta}>
-                <div>
-                  <p className="eyebrow">{fate.era}</p>
-                  <h4 className={styles.fateTitle}>{fate.title}</h4>
-                </div>
-                <TagPill tone="seal">{fate.statusLabel}</TagPill>
-              </div>
+        {fatePreviews.length === 0 ? (
+          <div className={styles.fateEmpty}>
+            <p className="section-body">
+              暂无命运节点预告。继续培养祖宗，新的命运线将在此展开。
+            </p>
+          </div>
+        ) : (
+          <div className={styles.fateList}>
+            {fatePreviews.map((fate) => {
+              const tensionTone = getTensionTone(fate.tension);
+              const statusLabel = fate.statusLabel || getTensionStatus(fate.tension);
 
-              <p className="section-body">{fate.description}</p>
+              return (
+                <article
+                  key={fate.id}
+                  className={`${styles.fateCard} paper-card`}
+                >
+                  <div className={styles.fateMeta}>
+                    <div>
+                      <p className="eyebrow">{fate.era}</p>
+                      <h4 className={styles.fateTitle}>{fate.title}</h4>
+                    </div>
+                    <TagPill tone="seal">{statusLabel}</TagPill>
+                  </div>
 
-              <div className={styles.tensionRow}>
-                <span>张力值</span>
-                <strong>{fate.tension}</strong>
-              </div>
+                  <p className="section-body">{fate.description}</p>
 
-              <div className={styles.tensionTrack} aria-hidden="true">
-                <div
-                  className={styles.tensionFill}
-                  style={{ width: `${fate.tension}%` }}
-                />
-              </div>
+                  <div className={styles.tensionRow}>
+                    <span>张力值</span>
+                    <strong>{fate.tension}</strong>
+                  </div>
 
-              <p className="muted-note">{fate.triggerHint}</p>
-              <p className={styles.reward}>{fate.rewardLabel}</p>
+                  <div
+                    className={`${styles.tensionTrack} ${styles[`tensionTrack--${tensionTone}`]}`}
+                    aria-hidden="true"
+                    role="meter"
+                    aria-label={`张力值: ${fate.tension}%`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={fate.tension}
+                  >
+                    <div
+                      className={`${styles.tensionFill} ${styles[`tensionFill--${tensionTone}`]}`}
+                      style={{ width: `${fate.tension}%` }}
+                    />
+                  </div>
 
-              <InkButton
-                tone="ghost"
-                onClick={() => {
-                  void onOpenFatePreview?.(fate.id);
-                }}
-              >
-                聚焦节点
-              </InkButton>
-            </article>
-          ))}
-        </div>
+                  <p className="muted-note">{fate.triggerHint}</p>
+                  <p className={styles.reward}>{fate.rewardLabel}</p>
+
+                  <InkButton
+                    tone="ghost"
+                    onClick={() => {
+                      void onOpenFatePreview?.(fate.id);
+                    }}
+                  >
+                    聚焦节点
+                  </InkButton>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </section>
   );
 }
-
