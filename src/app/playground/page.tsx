@@ -11,9 +11,8 @@ interface PlaygroundPageProps {
 export default async function PlaygroundPage({
   searchParams,
 }: PlaygroundPageProps = {}) {
-  const { ancestor } = searchParams
-    ? await searchParams
-    : { ancestor: undefined };
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const ancestor = resolvedSearchParams.ancestor;
   const data = await getHomePageData();
 
   return <PlaygroundPageClient data={data} initialAncestorId={ancestor} />;

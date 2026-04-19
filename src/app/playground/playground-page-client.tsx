@@ -5,11 +5,18 @@ import { useState, useSyncExternalStore } from "react";
 
 import playgroundStyles from "@/features/home-playground/home-playground-section.module.css";
 import {
+  appendConversationRecord,
   buildDerivedNurtureSummary,
+  createConversationRecord,
   getConversationMemory,
   subscribeConversationMemory,
 } from "@/shared/ai/interaction-memory";
-import type { HomePageData } from "@/shared/contracts/home";
+import type {
+  AiReplyRequest,
+  AiReplyResponse,
+  AiSceneType,
+  HomePageData,
+} from "@/shared/contracts/home";
 import { InkButton, TagPill } from "@/shared/ui/primitives";
 
 import styles from "../page-shell.module.css";
@@ -88,48 +95,6 @@ const reviewStyleNotes: Record<ReviewStyle, string> = {
   难得认可: "仍有锋芒，但会给出少量真肯定。",
 };
 
-const buildCrossEraText = (
-  theme: string,
-  format: CreationFormat,
-  primaryName: string,
-  secondaryName: string,
-  dominantTraits: string[],
-) => {
-  const traitLine = dominantTraits.join("、");
-
-  switch (format) {
-    case "诗":
-      return [
-        "【作品】",
-        `把“${theme}”写成一首带着${traitLine}气味的短诗。`,
-        `${primaryName}先起势，${secondaryName}后收束，让日常狼狈也像一段能被传阅的旧事。`,
-        "【创作注】",
-        "适合继续扩写成社交平台短文本或旁白。",
-      ].join("\n");
-    case "词":
-      return [
-        "【作品】",
-        `《今夜小令》\n将“${theme}”写成半阙不肯示弱的慢词。`,
-        `${primaryName}负责情绪重心，${secondaryName}负责尾句余味。`,
-        "【创作注】",
-        `当前作品明显受 ${traitLine} 这几项特质影响。`,
-      ].join("\n");
-    case "对联":
-      return [
-        "【作品】",
-        `上联：把${theme}写得先见${primaryName}气口，再见人间狼狈`,
-        `下联：让收束里藏着${secondaryName}尾劲，也藏着${traitLine}`,
-        "横批：跨代同题",
-      ].join("\n");
-    case "短文":
-      return [
-        "【作品】",
-        `${theme}原本只是现代生活里一小块不体面的裂纹，被${primaryName}提亮情绪，再经${secondaryName}收束成一段能被反复转述的短文。`,
-        `整段文本当前更偏向 ${traitLine} 的表达方式。`,
-      ].join("\n");
-  }
-};
-
 const buildReviewText = (
   reviewer: string,
   reviewStyle: ReviewStyle,
@@ -157,19 +122,20 @@ export function PlaygroundPageClient({
   initialAncestorId,
 }: PlaygroundPageClientProps) {
   const [activityNote, setActivityNote] = useState(
-    "这里集中承载真正可玩的玩法工坊，不再在中间重复展示入口卡片。",
+    "这里集中承载真正可玩的玩法工坊，你可以直接切换祖宗、切换模式并生成结果。",
   );
   const [activeWorkshopMode, setActiveWorkshopMode] =
     useState<PlayableModeId>("cross-time-quarrel");
   const [playResult, setPlayResult] = useState<PlayResult | null>(null);
   const [reviewOutput, setReviewOutput] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [selectedAncestorId, setSelectedAncestorId] = useState(
     initialAncestorId ?? data.featuredAncestor.id,
   );
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    getConversationMemory,
+    () => [],
   );
   const ancestors = [data.featuredAncestor, ...data.roster];
   const selectedAncestor =
@@ -223,68 +189,159 @@ export function PlaygroundPageClient({
   const getAncestorName = (id: string) =>
     ancestors.find((ancestor) => ancestor.id === id)?.name ?? "佚名祖宗";
 
-  const generateCrossTimeQuarrel = () => {
+  const requestAiResult = async (
+    sceneType: AiSceneType,
+    mode: AiReplyRequest["mode"],
+    userMessage: string,
+    contextNote: string,
+  ) => {
+    const request: AiReplyRequest = {
+      ancestorId: selectedAncestor.id,
+      userMessage,
+      mode,
+      sceneType,
+      moodIndex: selectedSummary.moodSnapshot.value,
+      traitVector: selectedSummary.traitVector,
+      contextNote,
+    };
+    const response = await fetch("/api/ai-reply", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error("AI 服务暂时不可用，请稍后重试。");
+    }
+
+    const payload = (await response.json()) as AiReplyResponse;
+    appendConversationRecord(createConversationRecord(request, payload));
+    return payload;
+  };
+
+  const toPlayResult = (
+    response: AiReplyResponse,
+    fallbackTitle: string,
+    fallbackSummary: string,
+    seedTags: string[],
+    reviewContext?: PlayResult["reviewContext"],
+  ): PlayResult => {
+    const tags = [...new Set([...seedTags, ...response.output.styleTags])].slice(0, 6);
+    return {
+      title: fallbackTitle,
+      summary: `${fallbackSummary} ${response.output.subtext}`,
+      body: response.output.reply,
+      tags,
+      hook: response.output.nextAction,
+      reviewContext,
+    };
+  };
+
+  const generateCrossTimeQuarrel = async () => {
     const challenger = getAncestorName(quarrelDraft.challengerId);
     const opponent = getAncestorName(quarrelDraft.opponentId);
     const mediator = quarrelDraft.mediatorId
       ? getAncestorName(quarrelDraft.mediatorId)
       : "无人拉架";
 
-    setPlayResult({
-      title: `${challenger} vs ${opponent}`,
-      summary: `${selectedAncestor.name} 当前的 ${dominantTraits.join("、")} 倾向，正在放大这场争端的火药味。`,
-      body: `${challenger}围绕“${quarrelDraft.conflictTopic}”先抢话权，${opponent}不肯退让，${mediator === "无人拉架" ? "现场失去缓冲，语气节节抬高。" : `${mediator}出场后明显站向一边，使局势进一步失衡。`} 当前裁决更偏向「${quarrelDraft.rulingBias}」，所以争端的戏剧点会落在偏袒、误判和情绪反扑上。`,
-      tags: [challenger, opponent, quarrelDraft.rulingBias, ...dominantTraits.slice(0, 2)],
-      hook: `如果继续推进，建议让 ${selectedAncestor.name} 作为场外评价者或偏袒者加入下一轮。`,
-    });
-    setReviewOutput(null);
+    setIsGenerating(true);
+    try {
+      const aiResponse = await requestAiResult(
+        "conflict-mediation",
+        "prototype",
+        `请直接输出最终争端现场文本，不要分析过程。甲方：${challenger}；乙方：${opponent}；第三人：${mediator}；主题：${quarrelDraft.conflictTopic}；裁决重心：${quarrelDraft.rulingBias}。`,
+        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。`,
+      );
+      setPlayResult(
+        toPlayResult(
+          aiResponse,
+          `${challenger} vs ${opponent}`,
+          `已生成最终争端现场，裁决偏向「${quarrelDraft.rulingBias}」。`,
+          [challenger, opponent, quarrelDraft.rulingBias, ...dominantTraits.slice(0, 2)],
+        ),
+      );
+      setActivityNote("争端现场已由 AI 生成并写入互动记忆。");
+      setReviewOutput(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
+      setActivityNote(message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  const generateTruthOrDare = () => {
+  const generateTruthOrDare = async () => {
     const speaker = getAncestorName(truthDraft.speakerId);
     const question =
       truthQuestionOptions.find((item) => item.id === truthDraft.questionId) ??
       truthQuestionOptions[0];
     const truthTone =
-      truthDraft.honesty >= 70 ? "偏揭露真相" : truthDraft.honesty <= 35 ? "偏掩饰回避" : "半真半假";
+      truthDraft.honesty >= 70 ? "直球" : truthDraft.honesty <= 35 ? "闪躲" : "留白";
 
-    setPlayResult({
-      title: `${speaker}的${truthDraft.playMode}回答`,
-      summary: `${selectedAncestor.name} 当前的性格偏移，让这轮回答更接近「${truthTone}」。`,
-      body: `${speaker}面对「${question.label}」时，先判断提问者到底想听真相还是想看表演。${question.reveal} 在当前坦率度 ${truthDraft.honesty}% 和 ${dominantTraits.join("、")} 倾向下，答案会刻意留一截余地，让真话、狠话和自保同时存在。`,
-      tags: [speaker, truthDraft.playMode, truthTone],
-      hook: "继续调高坦率度或切换提问人物，可以得到完全不同的口供版本。",
-    });
-    setReviewOutput(null);
+    setIsGenerating(true);
+    try {
+      const aiResponse = await requestAiResult(
+        "daily-chat",
+        truthDraft.playMode === "真心话" ? "prototype" : "ooc",
+        `请输出${truthDraft.playMode}的最终内容，不要解释过程。出场人物：${speaker}；问题：${question.label}；参考线索：${question.reveal}；坦率度：${truthDraft.honesty}%（${truthTone}）。`,
+        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。`,
+      );
+      setPlayResult(
+        toPlayResult(
+          aiResponse,
+          `${speaker}的${truthDraft.playMode}回答`,
+          "【最终回答】",
+          [speaker, truthDraft.playMode, truthTone, ...dominantTraits.slice(0, 1)],
+        ),
+      );
+      setActivityNote(`${truthDraft.playMode}结果已由 AI 生成并写入互动记忆。`);
+      setReviewOutput(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
+      setActivityNote(message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  const generateFusionCreation = () => {
+  const generateFusionCreation = async () => {
     const primary = getAncestorName(fusionDraft.primaryId);
     const secondary = getAncestorName(fusionDraft.secondaryId);
-    const ratioB = 100 - fusionDraft.ratio;
-    const body = buildCrossEraText(
-      fusionDraft.theme,
-      fusionDraft.format,
-      primary,
-      secondary,
-      dominantTraits,
-    );
 
-    setPlayResult({
-      title: `《${fusionDraft.theme.slice(0, 10)}${fusionDraft.theme.length > 10 ? "..." : ""}》`,
-      summary: `${primary}${fusionDraft.ratio}% 领笔，${secondary}${ratioB}% 添调，整体口吻继承 ${selectedAncestor.name} 的当前性格偏向。`,
-      body,
-      tags: [primary, secondary, `${fusionDraft.format}创作`, ...dominantTraits.slice(0, 1)],
-      hook: "生成后可以继续指定人物做互评，把作品推进成真正可传播的版本。",
-      reviewContext: {
-        authors: `${primary}与${secondary}`,
-        originalWork: body,
-      },
-    });
-    setReviewOutput(null);
+    setIsGenerating(true);
+    try {
+      const aiResponse = await requestAiResult(
+        "creative-feedback",
+        "ooc",
+        `请直接输出最终作品，不要分析过程。主题：${fusionDraft.theme}；体裁：${fusionDraft.format}；主风格：${primary}（${fusionDraft.ratio}%）；副风格：${secondary}（${100 - fusionDraft.ratio}%）。`,
+        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。`,
+      );
+      const title = `《${fusionDraft.theme.slice(0, 10)}${fusionDraft.theme.length > 10 ? "..." : ""}》`;
+      setPlayResult(
+        toPlayResult(
+          aiResponse,
+          title,
+          `主笔：${primary} · 合笔：${secondary} · 体裁：${fusionDraft.format}`,
+          [primary, secondary, `${fusionDraft.format}创作`, ...dominantTraits.slice(0, 1)],
+          {
+            authors: `${primary}与${secondary}`,
+            originalWork: aiResponse.output.reply,
+          },
+        ),
+      );
+      setActivityNote("融合创作已由 AI 生成并写入互动记忆。");
+      setReviewOutput(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
+      setActivityNote(message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
-  const generateModernReframe = () => {
+  const generateModernReframe = async () => {
     const speaker = getAncestorName(modernDraft.speakerId);
     const topic =
       modernDraft.topicId === "custom"
@@ -294,26 +351,35 @@ export function PlaygroundPageClient({
           }
         : modernTopicOptions.find((item) => item.id === modernDraft.topicId) ??
           modernTopicOptions[0];
-    const body = [
-      `【${speaker}重构】`,
-      `若论${topic.label}，最荒唐处不在事难，而在人人都太懂得把狼狈装成体面。`,
-      `${topic.friction}。在 ${selectedAncestor.name} 当前的 ${dominantTraits.join("、")} 倾向影响下，这段重构会更偏向辛辣、讽刺或带安抚感的表达。`,
-      "【传播注】",
-      "这段结果适合继续切成评论区引战开头或短视频文案引子。",
-    ].join("\n");
 
-    setPlayResult({
-      title: `${speaker}重构：${topic.label}`,
-      summary: `${speaker}已接管现代命题的解释权，当前结果继承了 ${selectedAncestor.name} 的派生性格向量。`,
-      body,
-      tags: [speaker, topic.label, "现代命题"],
-      hook: "继续换人物或换命题，可以快速生成不同口气的现代重构版本。",
-      reviewContext: {
-        authors: speaker,
-        originalWork: body,
-      },
-    });
-    setReviewOutput(null);
+    setIsGenerating(true);
+    try {
+      const aiResponse = await requestAiResult(
+        "event-reaction",
+        "ooc",
+        `请直接输出最终重构文本，不要分析过程。出场古人：${speaker}；现代命题：${topic.label}；现实摩擦：${topic.friction}。`,
+        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。`,
+      );
+      setPlayResult(
+        toPlayResult(
+          aiResponse,
+          `${speaker}重构：${topic.label}`,
+          `${speaker}已接管现代命题的解释权，结果已生成。`,
+          [speaker, topic.label, "现代命题"],
+          {
+            authors: speaker,
+            originalWork: aiResponse.output.reply,
+          },
+        ),
+      );
+      setActivityNote("现代重构已由 AI 生成并写入互动记忆。");
+      setReviewOutput(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
+      setActivityNote(message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const generateReview = () => {
@@ -430,7 +496,9 @@ export function PlaygroundPageClient({
               这场争端会继承 {selectedAncestor.name} 当前的 {dominantTraits.join("、")} 倾向。
             </p>
             <div className={playgroundStyles.actionRow}>
-              <InkButton onClick={generateCrossTimeQuarrel}>生成争端现场</InkButton>
+              <InkButton onClick={generateCrossTimeQuarrel} disabled={isGenerating}>
+                {isGenerating ? "生成中..." : "生成争端现场"}
+              </InkButton>
             </div>
           </div>
         );
@@ -510,7 +578,9 @@ export function PlaygroundPageClient({
               />
             </label>
             <div className={playgroundStyles.actionRow}>
-              <InkButton onClick={generateTruthOrDare}>生成回答界面</InkButton>
+              <InkButton onClick={generateTruthOrDare} disabled={isGenerating}>
+                {isGenerating ? "生成中..." : "生成回答界面"}
+              </InkButton>
             </div>
           </div>
         );
@@ -606,7 +676,9 @@ export function PlaygroundPageClient({
               />
             </label>
             <div className={playgroundStyles.actionRow}>
-              <InkButton onClick={generateFusionCreation}>生成融合创作</InkButton>
+              <InkButton onClick={generateFusionCreation} disabled={isGenerating}>
+                {isGenerating ? "生成中..." : "生成融合创作"}
+              </InkButton>
             </div>
           </div>
         );
@@ -668,7 +740,9 @@ export function PlaygroundPageClient({
               </label>
             ) : null}
             <div className={playgroundStyles.actionRow}>
-              <InkButton onClick={generateModernReframe}>生成现代重构</InkButton>
+              <InkButton onClick={generateModernReframe} disabled={isGenerating}>
+                {isGenerating ? "生成中..." : "生成现代重构"}
+              </InkButton>
             </div>
           </div>
         );
@@ -678,23 +752,23 @@ export function PlaygroundPageClient({
   };
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${styles.pageLarge}`}>
       <header className={`${styles.header} section-shell`}>
         <div>
           <div className={styles.brandMeta}>
-            <TagPill tone="seal">Playground</TagPill>
-            <TagPill tone="muted">Developer 4</TagPill>
+            <TagPill tone="seal">{data.seasonLabel}</TagPill>
+            <TagPill tone="muted">{selectedAncestor.name}</TagPill>
           </div>
           <h1 className="display-title">玩法入口</h1>
           <p className={styles.subtitle}>
-            把模式意图和创作传播预览拆成独立页面，让首页只保留入口，不再承担全部演示内容。
+            在这里直接进入玩法工坊，让老祖宗当前的情绪和性格继续影响吵架、创作与现代命题重构。
           </p>
           <div className={styles.quickActions}>
             <Link href="/" className={styles.quickLink}>
-              返回首页中枢
+              返回首页
             </Link>
             <Link href="/ancestors" className={styles.quickLink}>
-              去祖宗页
+              去古人台
             </Link>
             <Link href="/growth" className={styles.quickLink}>
               去养成页

@@ -24,7 +24,7 @@ const modePresentation = {
     glyph: "丙",
     eyebrow: "合卷试笔",
     signal: "文风混写",
-    footer: "强调创作接口预留位，让用户知道它可点但仍停留在 future intent。",
+    footer: "适合直接发起联合作诗、改词或混写，随后继续把结果带入互评。",
   },
   "modern-reframe": {
     glyph: "丁",
@@ -68,7 +68,7 @@ export function HomePlaygroundSection({
   return (
     <section className={`${styles.root} section-shell`}>
       <SectionHeading
-        eyebrow="Interactive Entry"
+        eyebrow="玩法总览"
         title="玩法入口"
         description="先从这里选择玩法，再在下方玩法工坊里真正操作。作品互评会并入创作类玩法的结果区。"
       />
@@ -120,7 +120,7 @@ export function HomePlaygroundSection({
                 </div>
                 <div className={styles.modeState}>
                   <TagPill tone={mode.readiness === "mock-ready" ? "seal" : "muted"}>
-                    {mode.readiness === "mock-ready" ? "可预览" : "接口预告"}
+                    {mode.readiness === "mock-ready" ? "可游玩" : "敬请期待"}
                   </TagPill>
                   <span className={styles.modeSignal}>
                     {presentation?.signal ?? "意图待发"}

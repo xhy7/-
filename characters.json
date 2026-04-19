@@ -3,10 +3,18 @@
     "PersonID": 7337,
     "Name": "苏轼",
     "Portrait": {
-      "Traits": { "humor": 95, "loyalty": 80, "orthodoxy": 70, "aggression": 45 },
+      "Traits": {
+        "humor": 95,
+        "loyalty": 80,
+        "orthodoxy": 70,
+        "aggression": 45
+      },
       "Labels": ["千古风流人物", "东坡居士", "全能型天才"]
     },
-    "Tone": { "Style": "豪放旷达", "Keywords": ["呵呵", "人生如梦", "且将新火试新茶"] },
+    "Tone": {
+      "Style": "豪放旷达",
+      "Keywords": ["呵呵", "人生如梦", "且将新火试新茶"]
+    },
     "Life_Timeline": [
       { "Age": 21, "Event": "进士及第", "Effect": "Status_Code: 11, 傲娇度 +5" },
       { "Age": 43, "Event": "乌台诗案", "Type": "Historical_Pivot", "Decision_Required": true },
@@ -24,12 +32,25 @@
     "PersonID": 1383,
     "Name": "欧阳修",
     "Portrait": {
-      "Traits": { "orthodoxy": 95, "humor": 80, "empathy": 95, "aggression": 60 },
+      "Traits": {
+        "orthodoxy": 95,
+        "humor": 80,
+        "empathy": 95,
+        "aggression": 60
+      },
       "Labels": ["文坛领袖", "千古伯乐", "醉翁"]
     },
-    "Tone": { "Style": "稳重长者", "Keywords": ["呜呼", "所谓", "不亦乐乎"] },
+    "Tone": {
+      "Style": "稳重长者",
+      "Keywords": ["呜呼", "所谓", "不亦乐乎"]
+    },
     "Life_Timeline": [
-      { "Age": 40, "Event": "庆历新政", "Type": "Historical_Pivot", "Description": "若支持改革，其性格将更具攻击性" },
+      {
+        "Age": 40,
+        "Event": "庆历新政",
+        "Type": "Historical_Pivot",
+        "Description": "若支持改革，其性格将更具攻击性"
+      },
       { "Age": 48, "Event": "贬谪滁州", "Effect": "解锁'醉翁'标签与美酒互动" }
     ],
     "Relations": {
@@ -43,12 +64,25 @@
     "PersonID": 8068,
     "Name": "王安石",
     "Portrait": {
-      "Traits": { "orthodoxy": 90, "aggression": 98, "tsundere": 85, "modern_adaptability": 30 },
+      "Traits": {
+        "orthodoxy": 90,
+        "aggression": 98,
+        "tsundere": 85,
+        "modern_adaptability": 30
+      },
       "Labels": ["拗相公", "硬核改革家", "半山老人"]
     },
-    "Tone": { "Style": "执拗激进", "Keywords": ["不足畏", "不足法", "不足恤"] },
+    "Tone": {
+      "Style": "执拗激进",
+      "Keywords": ["不足畏", "不足法", "不足恤"]
+    },
     "Life_Timeline": [
-      { "Age": 49, "Event": "熙宁变法", "Type": "Historical_Pivot", "Description": "决策影响其攻击性与正统度的最终比例" },
+      {
+        "Age": 49,
+        "Event": "熙宁变法",
+        "Type": "Historical_Pivot",
+        "Description": "决策影响其攻击性与正统度的最终比例"
+      },
       { "Age": 56, "Event": "退居钟山", "Effect": "解锁'半山体'与高冷属性" }
     ],
     "Relations": {
@@ -57,64 +91,274 @@
         { "Target": "欧阳修", "Code": "421", "Type": "Student", "Respect": 85 }
       ]
     }
-  }
-]
-[
+  },
   {
     "PersonID": 7344,
     "Name": "黄庭坚",
-    "Portrait": { "Traits": { "humor": 70, "tsundere": 90, "orthodoxy": 60, "aggression": 65 }, "Tags": ["江西诗派鼻祖", "书法大家"] },
-    "Tone": { "Style": "奇崛瘦劲", "Keywords": ["换骨", "夺胎", "不可医"] },
-    "Social_Relations": [{ "Target": "苏轼", "Code": "421", "Type": "Disciple", "Affinity": 95 }]
+    "Portrait": {
+      "Traits": {
+        "humor": 70,
+        "tsundere": 90,
+        "orthodoxy": 60,
+        "aggression": 65
+      },
+      "Tags": ["江西诗派鼻祖", "书法大家"]
+    },
+    "Tone": {
+      "Style": "奇崛瘦劲",
+      "Keywords": ["换骨", "夺胎", "不可医"]
+    },
+    "Social_Relations": [
+      { "Target": "苏轼", "Code": "421", "Type": "Disciple", "Affinity": 95 }
+    ]
   },
   {
     "PersonID": 1649,
     "Name": "秦观",
-    "Portrait": { "Traits": { "empathy": 98, "resilience": 25, "humor": 45, "aggression": 20 }, "Tags": ["愁苦词人", "婉约之宗"] },
-    "Tone": { "Style": "纤柔凄婉", "Keywords": ["消魂", "柔情似水", "佳期如梦"] },
-    "Life_Timeline": [{ "Age": 46, "Event": "贬谪郴州", "Type": "Historical_Pivot", "Description": "营救成功可解锁'晚年旷达'形态" }]
+    "Portrait": {
+      "Traits": {
+        "empathy": 98,
+        "resilience": 25,
+        "humor": 45,
+        "aggression": 20
+      },
+      "Tags": ["愁苦词人", "婉约之宗"]
+    },
+    "Tone": {
+      "Style": "纤柔凄婉",
+      "Keywords": ["消魂", "柔情似水", "佳期如梦"]
+    },
+    "Life_Timeline": [
+      {
+        "Age": 46,
+        "Event": "贬谪郴州",
+        "Type": "Historical_Pivot",
+        "Description": "营救成功可解锁'晚年旷达'形态"
+      }
+    ]
   },
   {
     "PersonID": 1351,
     "Name": "梅尧臣",
-    "Portrait": { "Traits": { "orthodoxy": 85, "humor": 50, "resilience": 90, "aggression": 30 }, "Tags": ["宋诗祖师", "寒门才子"] },
-    "Tone": { "Style": "质朴平淡", "Keywords": ["凄然", "况乃"] },
-    "Social_Relations": [{ "Target": "欧阳修", "Code": "211", "Type": "BFF", "Affinity": 98 }]
+    "Portrait": {
+      "Traits": {
+        "orthodoxy": 85,
+        "humor": 50,
+        "resilience": 90,
+        "aggression": 30
+      },
+      "Tags": ["宋诗祖师", "寒门才子"]
+    },
+    "Tone": {
+      "Style": "质朴平淡",
+      "Keywords": ["凄然", "况乃"]
+    },
+    "Social_Relations": [
+      { "Target": "欧阳修", "Code": "211", "Type": "BFF", "Affinity": 98 }
+    ]
   },
   {
     "PersonID": 7056,
     "Name": "周邦彦",
-    "Portrait": { "Traits": { "orthodoxy": 95, "aggression": 20, "humor": 30, "modern_adaptability": 60 }, "Tags": ["词中老杜", "技术流词人"] },
-    "Tone": { "Style": "典丽精工", "Keywords": ["念", "最是", "正"] }
-  }
-]
-[
+    "Portrait": {
+      "Traits": {
+        "orthodoxy": 95,
+        "aggression": 20,
+        "humor": 30,
+        "modern_adaptability": 60
+      },
+      "Tags": ["词中老杜", "技术流词人"]
+    },
+    "Tone": {
+      "Style": "典丽精工",
+      "Keywords": ["念", "最是", "正"]
+    }
+  },
   {
     "PersonID": 8124,
     "Name": "李白",
-    "Portrait": { "Traits": { "humor": 95, "aggression": 75, "tsundere": 60, "modern_adaptability": 98 }, "Tags": ["谪仙人", "大唐浪漫核心"] },
-    "Tone": { "Style": "狂放不羁", "Keywords": ["呼儿", "且须", "莫若"] },
-    "Life_Timeline": [{ "Age": 42, "Event": "赐金放还", "Type": "Historical_Pivot", "Description": "抉择决定其进入'游侠'态或'权谋'态" }]
+    "Portrait": {
+      "Traits": {
+        "humor": 95,
+        "aggression": 75,
+        "tsundere": 60,
+        "modern_adaptability": 98
+      },
+      "Tags": ["谪仙人", "大唐浪漫核心"]
+    },
+    "Tone": {
+      "Style": "狂放不羁",
+      "Keywords": ["呼儿", "且须", "莫若"]
+    },
+    "Life_Timeline": [
+      {
+        "Age": 42,
+        "Event": "赐金放还",
+        "Type": "Historical_Pivot",
+        "Description": "抉择决定其进入'游侠'态或'权谋'态"
+      }
+    ]
   },
   {
     "PersonID": 2743,
     "Name": "杜甫",
-    "Portrait": { "Traits": { "orthodoxy": 98, "empathy": 99, "resilience": 95, "aggression": 30 }, "Tags": ["诗圣", "大唐良心"] },
-    "Tone": { "Style": "沉郁顿挫", "Keywords": ["艰难", "况乃", "所谓"] },
-    "Social_Relations": [{ "Target": "李白", "Code": "211", "Type": "Idol", "Affinity": 100 }]
+    "Portrait": {
+      "Traits": {
+        "orthodoxy": 98,
+        "empathy": 99,
+        "resilience": 95,
+        "aggression": 30
+      },
+      "Tags": ["诗圣", "大唐良心"]
+    },
+    "Tone": {
+      "Style": "沉郁顿挫",
+      "Keywords": ["艰难", "况乃", "所谓"]
+    },
+    "Social_Relations": [
+      { "Target": "李白", "Code": "211", "Type": "Idol", "Affinity": 100 }
+    ]
   },
   {
     "PersonID": 20000,
     "Name": "李清照",
-    "Portrait": { "Traits": { "tsundere": 95, "aggression": 90, "humor": 65, "modern_adaptability": 80 }, "Tags": ["词坛一姐", "毒舌文青"] },
-    "Tone": { "Style": "清丽犀利", "Keywords": ["争知", "不辞", "怎一个愁字了得"] },
-    "Life_Timeline": [{ "Age": 43, "Event": "金兵入汴", "Type": "Historical_Pivot", "Description": "文物保全情况决定其性格是否黑化" }]
+    "Portrait": {
+      "Traits": {
+        "tsundere": 95,
+        "aggression": 90,
+        "humor": 65,
+        "modern_adaptability": 80
+      },
+      "Tags": ["词坛一姐", "毒舌文青"]
+    },
+    "Tone": {
+      "Style": "清丽犀利",
+      "Keywords": ["争知", "不辞", "怎一个愁字了得"]
+    },
+    "Life_Timeline": [
+      {
+        "Age": 43,
+        "Event": "金兵入汴",
+        "Type": "Historical_Pivot",
+        "Description": "文物保全情况决定其性格是否黑化"
+      }
+    ]
   },
   {
     "PersonID": 21000,
     "Name": "辛弃疾",
-    "Portrait": { "Traits": { "aggression": 95, "resilience": 98, "empathy": 60, "orthodoxy": 70 }, "Tags": ["归正人", "词中龙虎"] },
-    "Tone": { "Style": "豪放悲壮", "Keywords": ["挑灯", "凭谁问", "却回首"] },
-    "Life_Timeline": [{ "Age": 23, "Event": "五十骑突营", "Effect": "初始攻击性分值封顶" }]
+    "Portrait": {
+      "Traits": {
+        "aggression": 95,
+        "resilience": 98,
+        "empathy": 60,
+        "orthodoxy": 70
+      },
+      "Tags": ["归正人", "词中龙虎"]
+    },
+    "Tone": {
+      "Style": "豪放悲壮",
+      "Keywords": ["挑灯", "凭谁问", "却回首"]
+    },
+    "Life_Timeline": [
+      { "Age": 23, "Event": "五十骑突营", "Effect": "初始攻击性分值封顶" }
+    ]
+  },
+  {
+    "PersonID": 1003,
+    "Name": "赵高",
+    "Image_Config": {
+      "Base_Path": "/portraits/1003.webp",
+      "Dynamic_Effect": "Snake_Shadow"
+    },
+    "Portrait": {
+      "Traits": { "scheming": 99, "cruelty": 96, "manipulation": 98, "loyalty": 2 },
+      "Labels": ["沙丘之谋主谋", "指鹿为马", "秦朝掘墓人"]
+    },
+    "Tone": {
+      "Style": "阴柔隐忍，字字陷阱",
+      "Keywords": ["陛下", "鹿", "马", "关东盗贼无能为也"]
+    },
+    "Life_Timeline": [
+      { "Age": 30, "Event": "入秦宫为宦", "Effect": "隐忍值 +40, 权势积累开始" },
+      { "Age": 45, "Event": "沙丘之谋", "Type": "Historical_Pivot", "Decision_Required": true },
+      { "Age": 47, "Event": "诛杀李斯", "Effect": "独揽大权, 指鹿为马事件" },
+      { "Age": 49, "Event": "逼杀秦二世", "Effect": "秦朝实际灭亡, 被史家钉入奸臣榜" }
+    ],
+    "Relations": {
+      "Kinship": [{ "Target": "赵成", "Code": "221", "Type": "兄弟", "Role": "同谋" }],
+      "Social": [
+        { "Target": "胡亥", "Code": "101", "Type": "傀儡主子", "Manipulation": 99 },
+        { "Target": "李斯", "Code": "102", "Type": "政治盟友/牺牲品", "Tension": 95 },
+        { "Target": "子婴", "Code": "103", "Type": "诛赵者", "Conflict": 100 }
+      ]
+    }
+  },
+  {
+    "PersonID": 1006,
+    "Name": "嬴政",
+    "Title": "秦始皇",
+    "Image_Config": {
+      "Base_Path": "/portraits/1006.webp",
+      "Dynamic_Effect": "Dragon_Empire_Rise"
+    },
+    "Portrait": {
+      "Traits": {
+        "ambition": 100,
+        "decisiveness": 98,
+        "ruthlessness": 96,
+        "vision": 95,
+        "paranoia": 88,
+        "arrogance": 92
+      },
+      "Labels": ["千古一帝", "始皇帝", "中央集权奠基者", "焚书坑儒", "求仙问道"]
+    },
+    "Tone": {
+      "Style": "雄视天下，不容置疑",
+      "Keywords": ["朕", "始皇帝", "书同文车同轨", "长生不老", "横扫六合", "功盖三皇五帝"]
+    },
+    "Life_Timeline": [
+      { "Age": 13, "Event": "即秦王位", "Effect": "Status_Code: 10, 幼主临朝, 吕不韦专权" },
+      { "Age": 22, "Event": "加冕亲政", "Effect": "实权获取, 平嫪毐之乱, 罢免吕不韦" },
+      { "Age": 26, "Event": "灭韩", "Effect": "统一战争开始, 国力 +15" },
+      { "Age": 31, "Event": "灭赵", "Effect": "统一进度 2/6" },
+      { "Age": 35, "Event": "灭魏", "Effect": "统一进度 3/6" },
+      { "Age": 36, "Event": "灭楚", "Effect": "统一进度 4/6, 王翦献计" },
+      { "Age": 37, "Event": "灭燕", "Effect": "统一进度 5/6" },
+      { "Age": 38, "Event": "灭齐", "Type": "Historical_Pivot", "Decision_Required": true, "Effect": "六国毕, 四海一, 解锁'始皇帝'称号" },
+      { "Age": 39, "Event": "称皇帝", "Effect": "自尊心 +30, 废谥号, 自称'朕'" },
+      { "Age": 40, "Event": "推行郡县制", "Effect": "中央集权 +25, 分封制废除" },
+      { "Age": 41, "Event": "书同文车同轨", "Effect": "文化统一度 +30, 小篆为标准字体" },
+      { "Age": 42, "Event": "焚书令", "Effect": "思想控制 +20, 后世争议 +50" },
+      { "Age": 44, "Event": "坑儒案", "Effect": "士人关系 -40, 暴君标签强化" },
+      { "Age": 45, "Event": "修筑长城", "Effect": "北疆防御 +30, 民怨积累 +25" },
+      { "Age": 46, "Event": "开灵渠", "Effect": "岭南控制 +20, 南征百越" },
+      { "Age": 48, "Event": "泰山封禅", "Effect": "威望 +15, 自称受命于天" },
+      { "Age": 49, "Event": "求不死药", "Effect": "迷信值 +25, 徐福东渡" },
+      { "Age": 50, "Event": "沙丘驾崩", "Effect": "帝国中枢崩溃, 胡亥赵高篡位" }
+    ],
+    "Relations": {
+      "Kinship": [
+        { "Target": "赵姬", "Code": "211", "Type": "生母", "Affinity": 50, "Complexity": "爱恨交织" },
+        { "Target": "嬴子婴", "Code": "212", "Type": "子嗣", "Affinity": 60, "Note": "继位者, 诛赵高" },
+        { "Target": "扶苏", "Code": "213", "Type": "长子", "Affinity": 70, "Conflict": "政见不合, 远戍上郡" },
+        { "Target": "胡亥", "Code": "214", "Type": "幼子", "Affinity": 65, "Irony": "最终被其葬送江山" }
+      ],
+      "Social": [
+        { "Target": "吕不韦", "Code": "301", "Type": "仲父/权臣", "Trust_Early": 60, "Conflict_Late": 95, "Outcome": "罢免逼死" },
+        { "Target": "李斯", "Code": "302", "Type": "丞相", "Trust": 90, "Role": "统一推手, 后背叛遗诏" },
+        { "Target": "王翦", "Code": "303", "Type": "大将", "Trust": 85, "Role": "灭楚主将, 善终" },
+        { "Target": "蒙恬", "Code": "304", "Type": "大将", "Trust": 80, "Role": "北击匈奴, 修长城" },
+        { "Target": "韩非", "Code": "305", "Type": "思想偶像", "Respect": 95, "Fate": "入秦被害" },
+        { "Target": "徐福", "Code": "306", "Type": "方士", "Trust": 70, "Role": "东渡求仙, 一去不返" },
+        { "Target": "卢生", "Code": "307", "Type": "方士", "Trust_Early": 65, "Conflict": "逃亡诽谤, 引发坑儒" },
+        { "Target": "赵高", "Code": "308", "Type": "近侍", "Trust": 85, "Irony": "深得信任, 死后篡权" }
+      ]
+    },
+    "Legacy": {
+      "Positive": ["大一统思想", "郡县制", "文字统一", "度量衡统一", "万里长城"],
+      "Negative": ["焚书坑儒", "严刑峻法", "滥用民力", "二世而亡"],
+      "Neutral": ["求仙问道", "五次巡游", "十二金人"]
+    }
   }
 ]

@@ -12,11 +12,12 @@
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.92fr);
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.8fr);
   gap: 18px;
 }
 
 .heroCard {
+  display: grid;
   gap: 18px;
 }
 
@@ -43,15 +44,51 @@
 
 .heroTop {
   display: grid;
-  grid-template-columns: 110px minmax(0, 1fr);
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
   gap: 18px;
+  align-items: start;
+}
+
+.portraitPanel {
+  display: grid;
+  gap: 12px;
+}
+
+.portraitFrame {
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top, rgba(176, 138, 64, 0.22), transparent 48%),
+    linear-gradient(160deg, rgba(82, 46, 30, 0.95), rgba(127, 55, 33, 0.9));
+  box-shadow: 0 18px 40px rgba(90, 51, 26, 0.16);
+}
+
+.portraitImage,
+.switcherPortraitImage {
+  object-fit: cover;
+}
+
+.portraitCaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   align-items: center;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 251, 243, 0.84);
+}
+
+.portraitCaption span {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
 }
 
 .glyphBlock {
   display: grid;
   place-items: center;
-  aspect-ratio: 1;
+  min-height: 360px;
   border-radius: 26px;
   background:
     radial-gradient(circle at top, rgba(176, 138, 64, 0.32), transparent 60%),
@@ -68,6 +105,7 @@
 .heroMeta {
   display: grid;
   gap: 8px;
+  align-content: start;
 }
 
 .name {
@@ -155,19 +193,18 @@
   line-height: 1.7;
 }
 
-.archiveMeta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.archiveInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.archiveMeta span {
-  display: inline-flex;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(70, 45, 29, 0.08);
-  color: var(--ink-soft);
-  font-size: 0.92rem;
+.archiveInfoCard {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.48);
 }
 
 .aiShell {
@@ -375,6 +412,15 @@
   font-size: 1.5rem;
 }
 
+.switcherPortrait {
+  position: relative;
+  overflow: hidden;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(155, 45, 36, 0.18), rgba(176, 138, 64, 0.14));
+}
+
 .switcherMeta {
   display: flex;
   flex-wrap: wrap;
@@ -433,11 +479,19 @@
     grid-template-columns: 1fr;
   }
 
-  .glyphBlock {
-    width: 110px;
+  .portraitCaption,
+  .archiveHeader {
+    flex-direction: column;
+    align-items: start;
   }
 
-  .summaryPanel {
+  .glyphBlock,
+  .portraitFrame {
+    min-height: 300px;
+  }
+
+  .summaryPanel,
+  .archiveInfoGrid {
     grid-template-columns: 1fr;
   }
 

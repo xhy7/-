@@ -119,7 +119,16 @@ describe("interaction memory", () => {
     );
 
     const evaluation = evaluateFateUnlock(
-      homePageData.fatePreviews[0],
+      {
+        id: "wutai-poem-case",
+        title: "乌台诗案",
+        era: "北宋 · 关键节点",
+        statusLabel: "高张力待触发",
+        tension: 84,
+        description: "继续鼓励他用玩笑化解压迫，可能会形成“笑着反击”的稀有性格切面。",
+        triggerHint: "需要 MoodIndex ≥ 75，且本周至少一次正向投喂。",
+        rewardLabel: "可能掉落：黑色幽默词条",
+      },
       derivedTraits,
       moodSnapshot,
       [

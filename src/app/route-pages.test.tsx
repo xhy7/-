@@ -3,7 +3,6 @@ import { vi } from "vitest";
 
 import AncestorsPage from "@/app/ancestors/page";
 import ChatPage from "@/app/chat/[ancestorId]/page";
-import FateDetailPage from "@/app/growth/fates/[fateId]/page";
 import GrowthPage from "@/app/growth/page";
 import PlaygroundPage from "@/app/playground/page";
 
@@ -21,13 +20,16 @@ vi.mock("next/navigation", async () => {
 });
 
 describe("feature route pages", () => {
-  it("renders the ancestors page with persona AI embedded in the hero stage", async () => {
+  it("renders the ancestors page with the hero stage", async () => {
     const page = await AncestorsPage();
 
     render(page);
 
-    expect(screen.getByRole("heading", { name: "祖宗主舞台" })).toBeInTheDocument();
-    expect(screen.getByText("苏轼 的角色代答")).toBeInTheDocument();
+    expect(screen.getAllByRole("heading", { name: "古人台" }).length).toBeGreaterThan(
+      0,
+    );
+    expect(screen.getByAltText("嬴政肖像")).toBeInTheDocument();
+    expect(screen.getByText("进入 嬴政 的对话场")).toBeInTheDocument();
   });
 
   it("renders the growth page as a standalone route", async () => {
@@ -40,7 +42,7 @@ describe("feature route pages", () => {
     expect(screen.getAllByRole("heading", { name: "养成中枢" }).length).toBeGreaterThan(
       0,
     );
-    expect(screen.getByText("命运节点预告")).toBeInTheDocument();
+    expect(screen.getByText("对话影响面板")).toBeInTheDocument();
   });
 
   it("renders the playground page as a standalone route", async () => {
@@ -54,19 +56,6 @@ describe("feature route pages", () => {
     expect(screen.getByText("真正可玩的模式台")).toBeInTheDocument();
   });
 
-  it("renders a standalone fate detail page after focus navigation", async () => {
-    const page = await FateDetailPage({
-      params: Promise.resolve({ fateId: "wutai-poem-case" }),
-      searchParams: Promise.resolve({ ancestor: "su-shi" }),
-    });
-
-    render(page);
-
-    expect(screen.getByRole("heading", { name: "乌台诗案" })).toBeInTheDocument();
-    expect(screen.getByText(/当前按 苏轼 的养成视角计算/)).toBeInTheDocument();
-    expect(screen.getByText("解锁状态")).toBeInTheDocument();
-  });
-
   it("renders a dedicated chat page for one ancestor", async () => {
     const page = await ChatPage({
       params: Promise.resolve({ ancestorId: "su-shi" }),
@@ -74,7 +63,7 @@ describe("feature route pages", () => {
 
     render(page);
 
-    expect(screen.getByRole("heading", { name: "苏轼 的对话页" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "苏轼 的对话场" })).toBeInTheDocument();
     expect(screen.getByText("角色 AI 对话")).toBeInTheDocument();
   });
 });

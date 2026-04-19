@@ -71,14 +71,14 @@ export function ChatPageClient({ data, ancestorId }: ChatPageClientProps) {
     data.aiSandbox.sceneOptions[0]?.id ?? "daily-chat",
   );
   const [message, setMessage] = useState("今天事情很多，我有点想摆烂。");
-  const [contextNote, setContextNote] = useState("独立对话页场景");
+  const [contextNote, setContextNote] = useState("当前对话场景");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    getConversationMemory,
+    () => [],
   );
   const ancestorRecords = conversationRecords.filter(
     (record) => record.ancestorId === ancestor.id,
@@ -183,13 +183,16 @@ export function ChatPageClient({ data, ancestorId }: ChatPageClientProps) {
       <header className={`${styles.header} section-shell`}>
         <div>
           <div className={styles.brandMeta}>
-            <TagPill tone="seal">独立对话页</TagPill>
+            <TagPill tone="seal">{data.seasonLabel}</TagPill>
             <TagPill tone="muted">{ancestor.name}</TagPill>
           </div>
-          <h1 className="display-title">{ancestor.name} 的对话页</h1>
+          <h1 className="display-title">{ancestor.name} 的对话场</h1>
+          <p className={styles.subtitle}>
+            把人物状态、对话历史和快捷开场语合并在一起，让聊天更自然，也让每次互动都继续影响养成。
+          </p>
           <div className={styles.quickActions}>
             <Link href="/ancestors" className={styles.quickLink}>
-              返回祖宗主舞台
+              返回古人台
             </Link>
             <Link href="/growth" className={styles.quickLink}>
               查看养成变化

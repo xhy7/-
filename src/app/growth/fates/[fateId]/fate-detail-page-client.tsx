@@ -34,7 +34,7 @@ export function FateDetailPageClient({
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    getConversationMemory,
+    () => [],
   );
 
   if (!fate) {

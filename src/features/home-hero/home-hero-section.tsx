@@ -1,9 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 
+import {
+  getCharacterPortraitProfile,
+} from "@/features/home-hero/character-portraits";
 import type {
   AiReplyRequest,
   AiReplyResponse,
@@ -13,7 +16,6 @@ import type {
   TraitMetric,
 } from "@/shared/contracts/home";
 import {
-  InkButton,
   SectionHeading,
   TagPill,
 } from "@/shared/ui/primitives";
@@ -46,28 +48,17 @@ const isFeaturedAncestor = (
 export function HomeHeroSection({
   featuredAncestor,
   roster,
-  aiSandbox,
   moodIndex,
   traitVector,
-  aiReplyResult,
-  aiReplyError,
-  isAiReplyPending,
   getChatHref,
-  chatMemoryCount,
-  chatSummary,
-  onGenerateAiReply,
   onSelectAncestor,
-  onOpenAncestorDetail,
 }: HomeHeroSectionProps) {
   const ancestors = [featuredAncestor, ...roster];
   const [activeAncestorId, setActiveAncestorId] = useState(featuredAncestor.id);
-  const [mode, setMode] = useState(aiSandbox.supportedModes[0]);
-  const [sceneType, setSceneType] = useState(aiSandbox.sceneOptions[0]?.id);
-  const [message, setMessage] = useState("今天事情很多，我有点想摆烂。");
-  const [contextNote, setContextNote] = useState("当前是首页轻交互场景");
   const activeAncestor =
     ancestors.find((ancestor) => ancestor.id === activeAncestorId) ??
     featuredAncestor;
+  const activePortraitProfile = getCharacterPortraitProfile(activeAncestor.name);
   const isFeaturedActive = activeAncestor.id === featuredAncestor.id;
 
   const supportModes = isFeaturedAncestor(activeAncestor)
@@ -86,10 +77,6 @@ export function HomeHeroSection({
     ? activeAncestor.rareForm
     : `候选形态：${activeAncestor.signatureTags[0]}`;
 
-  const archiveSealLabel = isFeaturedActive ? "主推人物卷" : "轮播人物卷";
-  const archiveSummary = isFeaturedAncestor(activeAncestor)
-    ? `${activeAncestor.currentResidence} · ${activeAncestor.playerBondTitle}`
-    : `${activeAncestor.name} 当前位于轮播候选位，可从首页直接切换聚焦。`;
   const quoteSeal = isFeaturedActive ? "朱印题签" : "候选题签";
   const dominantTraits = useMemo(
     () =>
@@ -98,33 +85,14 @@ export function HomeHeroSection({
         .slice(0, 2),
     [traitVector],
   );
-  const aiResponseMatchesAncestor = aiReplyResult?.ancestorId === activeAncestor.id;
-
-  const submitAiRequest = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!sceneType || !message.trim()) {
-      return;
-    }
-
-    await onGenerateAiReply?.({
-      ancestorId: activeAncestor.id,
-      userMessage: message.trim(),
-      mode,
-      sceneType,
-      moodIndex,
-      traitVector,
-      contextNote: contextNote.trim() || undefined,
-    });
-  };
 
   return (
     <section className={`${styles.root} section-shell`}>
       <div className={styles.header}>
         <SectionHeading
-          eyebrow="Hero Stage"
-          title="今日主推祖宗"
-          description="先锁定当前主推祖宗，再从侧边轮播里切换其他角色。这个模块只负责首页舞台与人物卷预览入口。"
+          eyebrow="主舞台"
+          title="古人台"
+          description="先锁定当前聚焦的老祖宗，再从侧边名录切换其他角色；对话入口统一走对话场。"
         />
         <TagPill tone="seal">{playerBondTitle}</TagPill>
       </div>
@@ -133,19 +101,41 @@ export function HomeHeroSection({
         <article className={`${styles.heroCard} paper-card`}>
           <div className={styles.heroBanner}>
             <div className={styles.bannerCopy}>
-              <p className="eyebrow">Current Ancestor</p>
+              <p className="eyebrow">当前聚焦</p>
               <strong className={styles.bannerTitle}>
                 {isFeaturedActive ? "当前主推祖宗" : "已切换轮播祖宗"}
               </strong>
             </div>
             <TagPill tone={isFeaturedActive ? "seal" : "muted"}>
-              {isFeaturedActive ? "Featured" : "Roster Active"}
+              {isFeaturedActive ? "主推位" : "轮播位"}
             </TagPill>
           </div>
 
           <div className={styles.heroTop}>
-            <div className={styles.glyphBlock} aria-hidden="true">
-              <span>{activeAncestor.portraitGlyph}</span>
+            <div className={styles.portraitPanel}>
+              {activePortraitProfile ? (
+                <div className={styles.portraitFrame}>
+                  <Image
+                    src={activePortraitProfile.imageSrc}
+                    alt={`${activeAncestor.name}肖像`}
+                    fill
+                    sizes="(max-width: 960px) 100vw, 320px"
+                    className={styles.portraitImage}
+                  />
+                </div>
+              ) : (
+                <div className={styles.glyphBlock} aria-hidden="true">
+                  <span>{activeAncestor.portraitGlyph}</span>
+                </div>
+              )}
+              <div className={styles.portraitCaption}>
+                <strong>{activeAncestor.name}</strong>
+                <span>
+                  {activePortraitProfile
+                    ? `档案编号 ${activePortraitProfile.personId}`
+                    : "暂无照片档案"}
+                </span>
+              </div>
             </div>
             <div className={styles.heroMeta}>
               <p className="eyebrow">{activeAncestor.era}</p>
@@ -153,6 +143,15 @@ export function HomeHeroSection({
                 {activeAncestor.name} · {activeAncestor.epithet}
               </h3>
               <p className="section-body">{activeAncestor.oneLiner}</p>
+              {activePortraitProfile ? (
+                <div className={styles.tagRow}>
+                  {activePortraitProfile.labels.slice(0, 3).map((label) => (
+                    <TagPill key={label} tone="muted">
+                      {label}
+                    </TagPill>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -169,7 +168,7 @@ export function HomeHeroSection({
 
           <div className={styles.summaryPanel}>
             <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Mood</span>
+              <span className={styles.summaryLabel}>情绪状态</span>
               <strong>{activeAncestor.currentMoodLabel}</strong>
             </div>
             <div className={styles.summaryItem}>
@@ -184,179 +183,20 @@ export function HomeHeroSection({
 
           <p className="muted-note">{resonanceSummary}</p>
 
-          <section className={styles.archiveShell} aria-label="人物卷预告">
-            <div className={styles.archiveHeader}>
-              <div>
-                <p className="eyebrow">Archive Drawer Shell</p>
-                <h4 className={styles.archiveTitle}>人物卷预告</h4>
-              </div>
-              <TagPill tone={isFeaturedActive ? "seal" : "muted"}>
-                {archiveSealLabel}
-              </TagPill>
-            </div>
-            <p className={styles.archiveSummary}>{archiveSummary}</p>
-            <div className={styles.archiveMeta}>
-              <span>语录</span>
-              <span>题签</span>
-              <span>关系钩子</span>
-            </div>
-          </section>
-
-          <section className={styles.aiShell} aria-label="角色 AI 代答">
-            <div className={styles.aiHeader}>
-              <div>
-                <p className="eyebrow">Persona AI</p>
-                <h4 className={styles.aiTitle}>{activeAncestor.name} 的角色代答</h4>
-              </div>
-              <TagPill tone={isAiReplyPending ? "seal" : "muted"}>
-                {isAiReplyPending ? "AI 生成中" : "AI 在线"}
-              </TagPill>
-            </div>
-
-            <p className={styles.aiSummary}>
-              每位祖宗背后都挂着一套角色 persona。当前会按
-              `mode / sceneType / moodIndex / traitVector` 生成符合人设的回复。
-            </p>
-
-            <div className={styles.aiTraitRow}>
-              <span>角色倾向</span>
-              <div className={styles.tagRow}>
-                {dominantTraits.map((trait) => (
-                  <TagPill key={trait.id} tone="muted">
-                    {trait.label}
-                  </TagPill>
-                ))}
-                <TagPill tone="muted">Mood {moodIndex}</TagPill>
-              </div>
-            </div>
-
-            {onGenerateAiReply ? (
-              <>
-                <form className={styles.aiForm} onSubmit={submitAiRequest}>
-                  <div className={styles.aiGrid}>
-                    <label className={styles.aiField}>
-                      <span>模式</span>
-                      <select
-                        value={mode}
-                        onChange={(event) => {
-                          setMode(event.target.value as typeof mode);
-                        }}
-                      >
-                        {aiSandbox.supportedModes.map((item) => (
-                          <option key={item} value={item}>
-                            {item}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <label className={styles.aiField}>
-                      <span>场景</span>
-                      <select
-                        value={sceneType}
-                        onChange={(event) => {
-                          setSceneType(event.target.value as typeof sceneType);
-                        }}
-                      >
-                        {aiSandbox.sceneOptions.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-
-                  <label className={styles.aiField}>
-                    <span>场景备注</span>
-                    <input
-                      type="text"
-                      value={contextNote}
-                      onChange={(event) => {
-                        setContextNote(event.target.value);
-                      }}
-                      placeholder="例如：安慰、吐槽、作品点评"
-                    />
-                  </label>
-
-                  <label className={styles.aiField}>
-                    <span>你想对他说的话</span>
-                    <textarea
-                      rows={4}
-                      maxLength={aiSandbox.maxUserMessageLength}
-                      value={message}
-                      onChange={(event) => {
-                        setMessage(event.target.value);
-                      }}
-                      placeholder="输入一句想让当前角色回应的话"
-                    />
-                  </label>
-
-                  <div className={styles.aiFormFoot}>
-                    <span className="muted-note">
-                      当前聚焦祖宗切换后，AI 代答对象也会随之切换。
-                    </span>
-                    <InkButton
-                      type="submit"
-                      disabled={isAiReplyPending || !message.trim()}
-                    >
-                      让 {activeAncestor.name} 开口
-                    </InkButton>
-                  </div>
-                </form>
-
-                {aiReplyError ? <p className={styles.aiError}>{aiReplyError}</p> : null}
-
-                {aiResponseMatchesAncestor ? (
-                  <div className={styles.aiReplyCard}>
-                    <div className={styles.aiReplyHeader}>
-                      <strong>角色回复</strong>
-                      <TagPill tone={aiReplyResult.debug.provider === "mock" ? "muted" : "seal"}>
-                        {aiReplyResult.debug.provider}
-                      </TagPill>
-                    </div>
-                    <p className={styles.aiReplyText}>{aiReplyResult.output.reply}</p>
-                    <p className="muted-note">潜台词：{aiReplyResult.output.subtext}</p>
-                    <p className="muted-note">下一步：{aiReplyResult.output.nextAction}</p>
-                    <div className={styles.tagRow}>
-                      {aiReplyResult.output.styleTags.map((tag) => (
-                        <TagPill key={tag} tone="muted">
-                          {tag}
-                        </TagPill>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            ) : getChatHref ? (
-              <div className={styles.aiCtaBlock}>
-                <p className="muted-note">
-                  当前舞台页只保留角色概览，对话入口已拆到独立页面。
-                </p>
-                <p className="muted-note">
-                  已累计 {chatMemoryCount ?? 0} 段对话记忆。
-                </p>
-                {chatSummary ? <p className="muted-note">{chatSummary}</p> : null}
-                <Link
-                  href={getChatHref(activeAncestor.id)}
-                  className={styles.aiChatLink}
-                >
-                  进入 {activeAncestor.name} 的对话页
-                </Link>
-              </div>
-            ) : null}
-          </section>
-
           <div className={styles.actionRow}>
-            <InkButton
-              onClick={() => {
-                void onOpenAncestorDetail?.(activeAncestor.id);
-              }}
-            >
-              展开人物卷
-            </InkButton>
+            {getChatHref ? (
+              <Link href={getChatHref(activeAncestor.id)} className={styles.aiChatLink}>
+                进入 {activeAncestor.name} 的对话场
+              </Link>
+            ) : null}
             <div className={styles.modeList}>
-              {supportModes.map((mode) => (
+              {dominantTraits.map((trait) => (
+                <TagPill key={trait.id} tone="muted">
+                  {trait.label}
+                </TagPill>
+              ))}
+              <TagPill tone="muted">情绪 {moodIndex}</TagPill>
+              {supportModes.slice(0, 2).map((mode) => (
                 <TagPill key={mode} tone="muted">
                   {mode}
                 </TagPill>
@@ -367,14 +207,15 @@ export function HomeHeroSection({
 
         <aside className={`${styles.switcher} paper-card paper-card--muted`}>
           <div className={styles.switcherHeader}>
-            <p className="eyebrow">Ancestor Roster</p>
+            <p className="eyebrow">祖宗名录</p>
             <h3 className={styles.switcherTitle}>祖宗轮播</h3>
           </div>
 
           <div className={styles.switcherList}>
-            {ancestors.map((ancestor, index) => {
+            {ancestors.map((ancestor) => {
               const isActive = ancestor.id === activeAncestor.id;
               const isFeatured = ancestor.id === featuredAncestor.id;
+              const portraitProfile = getCharacterPortraitProfile(ancestor.name);
 
               return (
                 <button
@@ -389,18 +230,28 @@ export function HomeHeroSection({
                   }}
                 >
                   <div className={styles.switcherTop}>
-                    <div className={styles.switcherGlyph} aria-hidden="true">
-                      {ancestor.portraitGlyph}
-                    </div>
+                    {portraitProfile ? (
+                      <div className={styles.switcherPortrait}>
+                        <Image
+                          src={portraitProfile.imageSrc}
+                          alt={`${ancestor.name}缩略肖像`}
+                          fill
+                          sizes="44px"
+                          className={styles.switcherPortraitImage}
+                        />
+                      </div>
+                    ) : (
+                      <div className={styles.switcherGlyph} aria-hidden="true">
+                        {ancestor.portraitGlyph}
+                      </div>
+                    )}
                     <div>
                       <div className={styles.switcherMeta}>
                         <strong>
                           {ancestor.name} · {ancestor.era}
                         </strong>
-                        <TagPill tone={isFeatured ? "seal" : "muted"}>
-                          {isFeatured ? "主推位" : `候选 ${index}`}
-                        </TagPill>
-                        <TagPill tone="muted">AI 在线</TagPill>
+                        {isFeatured ? <TagPill tone="seal">主推</TagPill> : null}
+                        <TagPill tone="muted">{isActive ? "当前聚焦" : "点击切换"}</TagPill>
                       </div>
                       <p>{ancestor.oneLiner}</p>
                     </div>
@@ -414,10 +265,6 @@ export function HomeHeroSection({
             })}
           </div>
 
-          <p className="muted-note">
-            当前只做首页切换，不接真实人物抽屉。后续只需复用
-            `getAncestorDetailPreview(ancestorId)` 即可扩展。
-          </p>
         </aside>
       </div>
     </section>

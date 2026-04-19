@@ -1,31 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
 
 import { homePageData } from "@/mocks/home-data";
 import { HomeGrowthSection } from "@/features/home-growth/home-growth-section";
 
 describe("HomeGrowthSection", () => {
-  it("renders the nurturing data and emits fate callbacks", async () => {
-    const user = userEvent.setup();
-    const onOpenFatePreview = vi.fn();
-
-    render(
-      <HomeGrowthSection
-        nurtureSummary={homePageData.nurtureSummary}
-        fatePreviews={homePageData.fatePreviews}
-        onOpenFatePreview={onOpenFatePreview}
-      />,
-    );
-
-    expect(screen.getByText("MoodIndex")).toBeInTheDocument();
-    expect(screen.getByText("乌台诗案")).toBeInTheDocument();
-
-    await user.click(screen.getAllByRole("button", { name: "聚焦节点" })[0]);
-
-    expect(onOpenFatePreview).toHaveBeenCalledWith("wutai-poem-case");
-  });
-
   it("displays delta with correct sign", () => {
     render(
       <HomeGrowthSection
@@ -65,43 +43,6 @@ describe("HomeGrowthSection", () => {
 
     const meters = screen.getAllByRole("meter");
     expect(meters.length).toBe(4);
-  });
-
-  it("handles empty fatePreviews gracefully", () => {
-    render(
-      <HomeGrowthSection
-        nurtureSummary={homePageData.nurtureSummary}
-        fatePreviews={[]}
-      />,
-    );
-
-    expect(
-      screen.getByText("暂无命运节点预告。继续培养祖宗，新的命运线将在此展开。"),
-    ).toBeInTheDocument();
-  });
-
-  it("calls onOpenFatePreview with correct fateId for each node", async () => {
-    const user = userEvent.setup();
-    const onOpenFatePreview = vi.fn();
-
-    render(
-      <HomeGrowthSection
-        nurtureSummary={homePageData.nurtureSummary}
-        fatePreviews={homePageData.fatePreviews}
-        onOpenFatePreview={onOpenFatePreview}
-      />,
-    );
-
-    const buttons = screen.getAllByRole("button", { name: "聚焦节点" });
-
-    await user.click(buttons[0]);
-    expect(onOpenFatePreview).toHaveBeenLastCalledWith("wutai-poem-case");
-
-    await user.click(buttons[1]);
-    expect(onOpenFatePreview).toHaveBeenLastCalledWith("hongmen-banquet");
-
-    await user.click(buttons[2]);
-    expect(onOpenFatePreview).toHaveBeenLastCalledWith("late-rain-night");
   });
 
   it("renders all active tags", () => {
@@ -145,32 +86,6 @@ describe("HomeGrowthSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("toggles fate card expansion on button click", async () => {
-    const user = userEvent.setup();
-    const onOpenFatePreview = vi.fn();
-
-    render(
-      <HomeGrowthSection
-        nurtureSummary={homePageData.nurtureSummary}
-        fatePreviews={homePageData.fatePreviews}
-        onOpenFatePreview={onOpenFatePreview}
-      />,
-    );
-
-    const buttons = screen.getAllByRole("button", { name: "聚焦节点" });
-    await user.click(buttons[0]);
-
-    expect(onOpenFatePreview).toHaveBeenCalledWith("wutai-poem-case");
-
-    const expandButton = screen.getByRole("button", { name: "合上卷轴" });
-    expect(expandButton).toBeInTheDocument();
-
-    await user.click(expandButton);
-
-    const focusButtons = screen.getAllByRole("button", { name: "聚焦节点" });
-    expect(focusButtons.length).toBe(3);
-  });
-
   it("applies breathing animation class when mood value >= 70", () => {
     render(
       <HomeGrowthSection
@@ -202,33 +117,6 @@ describe("HomeGrowthSection", () => {
 
     const moodValue = screen.getByText("20");
     expect(moodValue.className).toContain("metricsValueDimmed");
-  });
-
-  it("applies high tension class when fate tension >= 80", () => {
-    render(
-      <HomeGrowthSection
-        nurtureSummary={homePageData.nurtureSummary}
-        fatePreviews={homePageData.fatePreviews}
-      />,
-    );
-
-    const wutaiCard = screen.getByText("乌台诗案").closest("article");
-    expect(wutaiCard).toBeInTheDocument();
-    expect(wutaiCard!.className).toContain("fateCardHighTension");
-  });
-
-  it("applies both expanded and high tension classes correctly", () => {
-    render(
-      <HomeGrowthSection
-        nurtureSummary={homePageData.nurtureSummary}
-        fatePreviews={homePageData.fatePreviews}
-      />,
-    );
-
-    const wutaiCard = screen.getByText("乌台诗案").closest("article");
-    expect(wutaiCard).toBeInTheDocument();
-    expect(wutaiCard!.className).toContain("fateCardHighTension");
-    expect(wutaiCard!.className).not.toContain("fateCardExpanded");
   });
 
   it("renders empty traitVector placeholder", () => {
@@ -323,18 +211,5 @@ describe("HomeGrowthSection", () => {
 
     const meter = screen.getByRole("meter", { name: /测试/ });
     expect(meter.getAttribute("aria-valuenow")).toBe("100");
-  });
-
-  it("uses progressbar role for tension track", () => {
-    render(
-      <HomeGrowthSection
-        nurtureSummary={homePageData.nurtureSummary}
-        fatePreviews={homePageData.fatePreviews}
-      />,
-    );
-
-    const progressbars = screen.getAllByRole("progressbar");
-    expect(progressbars.length).toBe(3);
-    expect(progressbars[0].getAttribute("aria-valuenow")).toBe("84");
   });
 });

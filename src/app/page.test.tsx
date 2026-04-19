@@ -14,7 +14,7 @@ describe("home page assembly", () => {
     expect(
       screen.queryByRole("heading", { name: "今日主推祖宗" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText("角色 AI 已嵌入祖宗形象")).toBeInTheDocument();
+    expect(screen.getByText("古人台")).toBeInTheDocument();
   });
 
   it("renders route links for the three feature pages", async () => {
@@ -32,7 +32,7 @@ describe("home page assembly", () => {
       "/growth",
       "/playground",
     ]);
-    expect(within(navigation).getByText("英雄台")).toBeInTheDocument();
+    expect(within(navigation).getByText("古人台")).toBeInTheDocument();
     expect(within(navigation).getByText("养成中枢")).toBeInTheDocument();
     expect(within(navigation).getByText("玩法入口")).toBeInTheDocument();
   });

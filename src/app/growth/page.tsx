@@ -9,9 +9,8 @@ interface GrowthPageProps {
 }
 
 export default async function GrowthPage({ searchParams }: GrowthPageProps) {
-  const { ancestor } = searchParams
-    ? await searchParams
-    : { ancestor: undefined };
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const ancestor = resolvedSearchParams.ancestor;
   const data = await getHomePageData();
 
   return <GrowthPageClient data={data} initialAncestorId={ancestor} />;

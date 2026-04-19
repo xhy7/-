@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState, useSyncExternalStore } from "react";
 
@@ -7,7 +8,7 @@ import {
   HomeHeroSection,
   type HomeHeroSectionProps,
 } from "@/features/home-hero/home-hero-section";
-import { getAncestorDetailPreview } from "@/mocks/home-gateway";
+import { characterPortraitCatalog } from "@/features/home-hero/character-portraits";
 import {
   buildAncestorBaseTraitVector,
   deriveMoodSnapshotFromHistory,
@@ -16,29 +17,25 @@ import {
   subscribeConversationMemory,
   summarizeConversationHistory,
 } from "@/shared/ai/interaction-memory";
-import type {
-  AncestorDetailPreview,
-  HomePageData,
-} from "@/shared/contracts/home";
+import type { HomePageData } from "@/shared/contracts/home";
 import { TagPill } from "@/shared/ui/primitives";
 
+import portraitStyles from "./ancestors-page.module.css";
 import styles from "../page-shell.module.css";
 
 interface AncestorsPageClientProps {
   data: HomePageData;
 }
 
-const initialNote = "这里专门承载人物卷与角色 AI 代答，不再和养成、玩法混排。";
+const initialNote = "在这里查看古人写真、人物卷和对话入口，先选定今天要继续相处的那位老祖宗。";
 
 export function AncestorsPageClient({ data }: AncestorsPageClientProps) {
   const [activityNote, setActivityNote] = useState(initialNote);
-  const [ancestorPreview, setAncestorPreview] =
-    useState<AncestorDetailPreview | null>(null);
   const [activeAncestorId, setActiveAncestorId] = useState(data.featuredAncestor.id);
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    getConversationMemory,
+    () => [],
   );
 
   const ancestors = [data.featuredAncestor, ...data.roster];
@@ -81,32 +78,26 @@ export function AncestorsPageClient({ data }: AncestorsPageClientProps) {
 
       if (activeAncestor) {
         setActiveAncestorId(activeAncestor.id);
-        setAncestorPreview(null);
         setActivityNote(`已切换到 ${activeAncestor.name}，当前页只保留角色舞台与对话入口。`);
       }
-    },
-    onOpenAncestorDetail: async (ancestorId) => {
-      const preview = await getAncestorDetailPreview(ancestorId);
-      setAncestorPreview(preview);
-      setActivityNote(`${preview.name} 的人物卷预览已展开。`);
     },
   };
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${styles.pageLarge}`}>
       <header className={`${styles.header} section-shell`}>
         <div>
           <div className={styles.brandMeta}>
-            <TagPill tone="seal">Ancestors</TagPill>
-            <TagPill tone="muted">Developer 2</TagPill>
+            <TagPill tone="seal">{data.seasonLabel}</TagPill>
+            <TagPill tone="muted">{activeAncestor.name}</TagPill>
           </div>
-          <h1 className="display-title">祖宗主舞台</h1>
+          <h1 className="display-title">古人台</h1>
           <p className={styles.subtitle}>
-            这一页只承载古人角色展示、人物卷预览和角色 AI 代答，不再和首页其他模块混在一起。
+            这一页集中展示人物写真、角色名录与对话入口，方便你围绕同一位老祖宗持续推进互动与养成。
           </p>
           <div className={styles.quickActions}>
             <Link href="/" className={styles.quickLink}>
-              返回首页中枢
+              返回首页
             </Link>
             <Link href="/growth" className={styles.quickLink}>
               去养成页
@@ -127,10 +118,6 @@ export function AncestorsPageClient({ data }: AncestorsPageClientProps) {
               <strong>{data.featuredAncestor.name}</strong>
             </div>
             <div className={styles.asideItem}>
-              <span>默认模式</span>
-              <strong>{data.aiSandbox.supportedModes.join(" / ")}</strong>
-            </div>
-            <div className={styles.asideItem}>
               <span>历史记忆</span>
               <strong>{activeRecords.length} 段已回写</strong>
             </div>
@@ -145,43 +132,79 @@ export function AncestorsPageClient({ data }: AncestorsPageClientProps) {
       <div className={styles.layout}>
         <div className={styles.mainColumn}>
           <HomeHeroSection {...heroProps} />
+
+          <section className={`${portraitStyles.gallerySection} section-shell`}>
+            <div className={portraitStyles.galleryHeader}>
+              <div>
+                <p className="eyebrow">人物群像卷</p>
+                <h2 className={portraitStyles.sectionTitle}>已入库肖像档案</h2>
+                <p className="section-body">
+                  这里汇总已入库的人物照片与档案，方便你快速浏览不同古人的气质、节点与关系线索。
+                </p>
+              </div>
+              <TagPill tone="muted">{characterPortraitCatalog.length} 份照片已挂载</TagPill>
+            </div>
+
+            <div className={portraitStyles.galleryGrid}>
+              {characterPortraitCatalog.map((profile) => {
+                const isInCurrentStage = ancestors.some(
+                  (ancestor) => ancestor.name === profile.name,
+                );
+                const isActive = profile.name === activeAncestor.name;
+
+                return (
+                  <article
+                    key={profile.personId}
+                    className={`${portraitStyles.galleryCard} paper-card paper-card--muted`}
+                    data-active={isActive}
+                  >
+                    <div className={portraitStyles.galleryImageWrap}>
+                      <Image
+                        src={profile.imageSrc}
+                        alt={`${profile.name}档案照片`}
+                        fill
+                        sizes="(max-width: 960px) 100vw, 240px"
+                        className={portraitStyles.galleryImage}
+                      />
+                    </div>
+                    <div className={portraitStyles.galleryMeta}>
+                      <div className={styles.tagRow}>
+                        <TagPill tone={isInCurrentStage ? "seal" : "muted"}>
+                          {isInCurrentStage ? "已接入主舞台" : "档案扩展位"}
+                        </TagPill>
+                        <TagPill tone="muted">编号 {profile.personId}</TagPill>
+                      </div>
+                      <h3 className={portraitStyles.galleryTitle}>{profile.name}</h3>
+                      <p className="muted-note">{profile.toneStyle}</p>
+                      <p className="section-body">{profile.timelineNote}</p>
+                      <div className={styles.tagRow}>
+                        {profile.labels.slice(0, 2).map((label) => (
+                          <TagPill key={label}>{label}</TagPill>
+                        ))}
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
         </div>
 
         <aside className={styles.rail}>
           <section className={`${styles.railCard} section-shell`}>
             <div>
-              <p className="eyebrow">Persona Console</p>
-              <h2 className={styles.railTitle}>
-                {ancestorPreview?.archiveLabel ?? "人物与 AI 预览"}
-              </h2>
+              <p className="eyebrow">人物侧记</p>
+              <h2 className={styles.railTitle}>当前聚焦</h2>
             </div>
-
-            {ancestorPreview ? (
-              <div className={styles.previewStack}>
-                <p className="section-body">{ancestorPreview.profile}</p>
-                <div className={styles.tagRow}>
-                  {ancestorPreview.unlockHints.map((hint) => (
-                    <TagPill key={hint} tone="muted">
-                      {hint}
-                    </TagPill>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {!ancestorPreview ? (
-              <div className={styles.previewStack}>
-                <p className="section-body">
-                  在左侧切换祖宗、展开人物卷，或跳入独立对话页，这里会显示当前角色的概览信息。
-                </p>
-                <p className="muted-note">
-                  {summarizeConversationHistory(activeAncestor.name, activeRecords)}
-                </p>
-                <Link href={`/chat/${activeAncestor.id}`} className={styles.quickLink}>
-                  与 {activeAncestor.name} 开始对话
-                </Link>
-              </div>
-            ) : null}
+            <div className={styles.previewStack}>
+              <p className="section-body">{activeAncestor.oneLiner}</p>
+              <p className="muted-note">
+                {summarizeConversationHistory(activeAncestor.name, activeRecords)}
+              </p>
+              <Link href={`/chat/${activeAncestor.id}`} className={styles.quickLink}>
+                与 {activeAncestor.name} 开始对话
+              </Link>
+            </div>
           </section>
         </aside>
       </div>
