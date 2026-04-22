@@ -46,7 +46,9 @@ describe("feature route pages", () => {
   });
 
   it("renders the playground page as a standalone route", async () => {
-    const page = await PlaygroundPage();
+    const page = await PlaygroundPage({
+      searchParams: Promise.resolve({}),
+    });
 
     render(page);
 
