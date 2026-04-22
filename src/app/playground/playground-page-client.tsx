@@ -44,26 +44,56 @@ interface PlayResult {
   reviewContext?: {
     authors: string;
     originalWork: string;
+    sourceLabel: string;
   };
 }
 
-const truthQuestionOptions = [
-  {
-    id: "hongmen-banquet",
-    label: "鸿门宴到底谁先动了杀心？",
-    reveal: "一旦坦率度偏高，回答会明显指向权力结构与犹疑时刻。",
-  },
-  {
-    id: "wutai-poetry",
-    label: "乌台诗案里最不该说出口的是哪一句？",
-    reveal: "焦点不止是诗句，而是谁在等一句可被借题发挥的话。",
-  },
-  {
-    id: "chenqiao",
-    label: "陈桥兵变更像众望所归还是排演好的戏？",
-    reveal: "当反骨值更高时，回答会明显偏向拆台视角。",
-  },
+const truthQuestionPrompts: Record<string, string[]> = {
+  "su-shi": [
+    "如果乌台诗案重来一次，哪一句话你仍然忍不住要写？",
+    "你最怕别人把你的豁达误读成什么？",
+    "如果被贬黄州当天能收到一条现代私信，你希望里面写什么？",
+  ],
+  "li-qingzhao": [
+    "你最不愿意被后人只用哪一个词概括？",
+    "如果《如梦令》下面出现吵架评论区，你会亲自回哪一句？",
+    "哪一段离散记忆最不适合被改成热搜标题？",
+  ],
+  "li-bai": [
+    "如果把酒全撤掉，你还剩下几分狂气？",
+    "你写给朋友的诗里，哪一句其实最像求救？",
+    "如果今天不能远游，你会把豪情砸向哪里？",
+  ],
+  "wang-an-shi": [
+    "如果变法失败只能怪一个环节，你会先承认哪一个？",
+    "你最受不了反对者把你说成哪一种人？",
+    "当所有人都说稳一点时，你会怎样判断还能不能再推一步？",
+  ],
+  "wu-zetian": [
+    "如果无字碑能弹出一条弹幕，你最不想看见哪一句？",
+    "你更在意后人承认你的能力，还是承认你的代价？",
+    "当权力和亲情正面冲突时，你会先保住什么？",
+  ],
+  "ying-zheng": [
+    "如果大秦只能留下一项制度，你会留下哪一个？",
+    "你最不能容忍后人把统一说成什么？",
+    "如果群臣匿名给你打分，你最想知道哪一项？",
+  ],
+  "zhao-gao": [
+    "指鹿为马那一刻，你最想测试的到底是谁？",
+    "如果你有一次洗白机会，你会先改写哪件事？",
+    "你最怕别人看穿你的哪一种算计？",
+  ],
+};
+const fallbackTruthQuestionPrompts = [
+  "如果后人只能问你一个不体面的问题，你觉得会是什么？",
+  "你最希望被理解的一面，和最怕被看穿的一面分别是什么？",
+  "如果当年的关键抉择重来一次，你会改掉哪一个细节？",
 ];
+const getTruthQuestionPrompts = (ancestorId: string) =>
+  truthQuestionPrompts[ancestorId] ?? fallbackTruthQuestionPrompts;
+const getDefaultTruthQuestion = (ancestorId: string) =>
+  getTruthQuestionPrompts(ancestorId)[0] ?? fallbackTruthQuestionPrompts[0];
 
 const modernTopicOptions = [
   {
@@ -95,27 +125,18 @@ const reviewStyleNotes: Record<ReviewStyle, string> = {
   难得认可: "仍有锋芒，但会给出少量真肯定。",
 };
 
-const buildReviewText = (
-  reviewer: string,
-  reviewStyle: ReviewStyle,
-  authors: string,
-  originalWork: string,
-) => {
-  const styleLine =
-    reviewStyle === "毒舌"
-      ? "热闹有了，狠劲还差一寸，漂亮得太急着讨人喜欢。"
-      : reviewStyle === "委婉挖苦"
-        ? "句子不算难看，只是太知道自己想被夸，反而少了真气。"
-        : reviewStyle === "降维打击"
-          ? "你们忙着拼贴风格，可真正能留名的句子还没站稳。"
-          : "难得两股文风没有互相弄脏，至少还留住了一点真意思。";
-
-  return [
-    `【${reviewer}锐评】`,
-    `${authors}这份作品先声够响，后劲却未必都落到了实处。${styleLine}`,
-    `原作片段提示：${originalWork.slice(0, 52)}${originalWork.length > 52 ? "..." : ""}`,
-  ].join("\n");
+const ancestorReviewVoices: Record<string, string> = {
+  "su-shi": "苏轼点评要有松弛幽默、转圜能力和生活气，先把刺化成笑，再落到一句可改的地方。",
+  "li-qingzhao": "李清照点评要细、准、带审美洁癖，抓字词气息和情绪真伪，不要写成豪放派口吻。",
+  "li-bai": "李白点评要有飞扬气和夸张判断，重看气势、胆量、酒意般的腾挪，少做工整论文腔。",
+  "wang-an-shi": "王安石点评要像在审方案，重结构、利弊、执行路径和是否敢破旧局。",
+  "wu-zetian": "武则天点评要有上位者视角，重权力叙事、名声控制和作品是否镇得住场。",
+  "ying-zheng": "嬴政点评要有帝王裁断感，重秩序、统一、尺度和作品能否立成制度般的句子。",
+  "zhao-gao": "赵高点评要阴柔、试探、带操控感，专挑话术漏洞和可以借势翻盘的地方。",
 };
+const getAncestorReviewVoice = (ancestorId: string) =>
+  ancestorReviewVoices[ancestorId] ??
+  "点评必须保留点评者本人经历、气质和说话习惯，避免只套用风格标签。";
 
 export function PlaygroundPageClient({
   data,
@@ -129,6 +150,7 @@ export function PlaygroundPageClient({
   const [playResult, setPlayResult] = useState<PlayResult | null>(null);
   const [reviewOutput, setReviewOutput] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isReviewGenerating, setIsReviewGenerating] = useState(false);
   const [selectedAncestorId, setSelectedAncestorId] = useState(
     initialAncestorId ?? data.featuredAncestor.id,
   );
@@ -165,7 +187,7 @@ export function PlaygroundPageClient({
   });
   const [truthDraft, setTruthDraft] = useState({
     speakerId: data.featuredAncestor.id,
-    questionId: truthQuestionOptions[0].id,
+    questionText: getDefaultTruthQuestion(data.featuredAncestor.id),
     honesty: 58,
     playMode: "真心话",
   });
@@ -186,22 +208,34 @@ export function PlaygroundPageClient({
     style: "毒舌" as ReviewStyle,
   });
 
+  const getAncestorById = (id: string) =>
+    ancestors.find((ancestor) => ancestor.id === id) ?? data.featuredAncestor;
   const getAncestorName = (id: string) =>
-    ancestors.find((ancestor) => ancestor.id === id)?.name ?? "佚名祖宗";
+    getAncestorById(id).name;
+  const getRuntimeSummary = (ancestorId: string) => {
+    const ancestor = getAncestorById(ancestorId);
+    const records = conversationRecords.filter(
+      (record) => record.ancestorId === ancestorId,
+    );
+
+    return buildDerivedNurtureSummary(ancestor, data.nurtureSummary, records);
+  };
 
   const requestAiResult = async (
     sceneType: AiSceneType,
     mode: AiReplyRequest["mode"],
     userMessage: string,
     contextNote: string,
+    ancestorId = selectedAncestor.id,
   ) => {
+    const runtimeSummary = getRuntimeSummary(ancestorId);
     const request: AiReplyRequest = {
-      ancestorId: selectedAncestor.id,
+      ancestorId,
       userMessage,
       mode,
       sceneType,
-      moodIndex: selectedSummary.moodSnapshot.value,
-      traitVector: selectedSummary.traitVector,
+      moodIndex: runtimeSummary.moodSnapshot.value,
+      traitVector: runtimeSummary.traitVector,
       contextNote,
     };
     const response = await fetch("/api/ai-reply", {
@@ -274,9 +308,8 @@ export function PlaygroundPageClient({
 
   const generateTruthOrDare = async () => {
     const speaker = getAncestorName(truthDraft.speakerId);
-    const question =
-      truthQuestionOptions.find((item) => item.id === truthDraft.questionId) ??
-      truthQuestionOptions[0];
+    const question = truthDraft.questionText.trim() || getDefaultTruthQuestion(truthDraft.speakerId);
+    const promptHints = getTruthQuestionPrompts(truthDraft.speakerId).join(" / ");
     const truthTone =
       truthDraft.honesty >= 70 ? "直球" : truthDraft.honesty <= 35 ? "闪躲" : "留白";
 
@@ -285,8 +318,8 @@ export function PlaygroundPageClient({
       const aiResponse = await requestAiResult(
         "daily-chat",
         truthDraft.playMode === "真心话" ? "prototype" : "ooc",
-        `请输出${truthDraft.playMode}的最终内容，不要解释过程。出场人物：${speaker}；问题：${question.label}；参考线索：${question.reveal}；坦率度：${truthDraft.honesty}%（${truthTone}）。`,
-        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。`,
+        `请输出${truthDraft.playMode}的最终内容，不要解释过程。出场人物：${speaker}；玩家自由提问：${question}；坦率度：${truthDraft.honesty}%（${truthTone}）。`,
+        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。同一玩法下请贴合${speaker}的生平、口吻与心理盲点；可参考但不要照抄这些提示：${promptHints}。`,
       );
       setPlayResult(
         toPlayResult(
@@ -328,6 +361,7 @@ export function PlaygroundPageClient({
           {
             authors: `${primary}与${secondary}`,
             originalWork: aiResponse.output.reply,
+            sourceLabel: `${fusionDraft.format}混写结果`,
           },
         ),
       );
@@ -369,6 +403,7 @@ export function PlaygroundPageClient({
           {
             authors: speaker,
             originalWork: aiResponse.output.reply,
+            sourceLabel: `${topic.label}重构稿`,
           },
         ),
       );
@@ -382,23 +417,44 @@ export function PlaygroundPageClient({
     }
   };
 
-  const generateReview = () => {
+  const generateReview = async () => {
     if (!playResult?.reviewContext) {
       return;
     }
 
-    const reviewer = getAncestorName(reviewDraft.reviewerId);
-    setReviewOutput(
-      buildReviewText(
-        reviewer,
-        reviewDraft.style,
-        playResult.reviewContext.authors,
-        playResult.reviewContext.originalWork,
-      ),
-    );
+    const reviewer = getAncestorById(reviewDraft.reviewerId);
+    const reviewerRuntime = getRuntimeSummary(reviewer.id);
+    const reviewerVoice = getAncestorReviewVoice(reviewer.id);
+
+    setIsReviewGenerating(true);
+    try {
+      const aiResponse = await requestAiResult(
+        "creative-feedback",
+        "prototype",
+        `请直接输出对这份${playResult.reviewContext.sourceLabel}的最终互评，不要分析过程。点评者：${reviewer.name}；点评风格：${reviewDraft.style}；作者：${playResult.reviewContext.authors}；原作内容：${playResult.reviewContext.originalWork}。同一点评风格下，不同点评者必须有明显不同的关注点、比喻、句式和价值判断。`,
+        `点评风格要求：${reviewStyleNotes[reviewDraft.style]} 点评者专属声音：${reviewerVoice} 请让${reviewer.name}先按自己的历史处境和性格挑刺，再套入风格强度；不要写成通用评论模板。当前性格向量：${reviewerRuntime.traitVector
+          .slice()
+          .sort((left, right) => right.value / right.max - left.value / left.max)
+          .slice(0, 3)
+          .map((trait) => trait.label)
+          .join("、")}。`,
+        reviewer.id,
+      );
+
+      setReviewOutput(aiResponse.output.reply);
+      setActivityNote(`${reviewer.name} 的互评已生成，同一风格下也会保留人物差异。`);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "互评生成失败，请稍后重试。";
+      setActivityNote(message);
+    } finally {
+      setIsReviewGenerating(false);
+    }
   };
 
   const renderWorkshopForm = () => {
+    const truthPromptSuggestions = getTruthQuestionPrompts(truthDraft.speakerId);
+
     switch (activeWorkshopMode) {
       case "cross-time-quarrel":
         return (
@@ -511,9 +567,11 @@ export function PlaygroundPageClient({
                 className={playgroundStyles.select}
                 value={truthDraft.speakerId}
                 onChange={(event) => {
+                  const speakerId = event.target.value;
                   setTruthDraft((current) => ({
                     ...current,
-                    speakerId: event.target.value,
+                    speakerId,
+                    questionText: getDefaultTruthQuestion(speakerId),
                   }));
                 }}
               >
@@ -541,24 +599,39 @@ export function PlaygroundPageClient({
               </select>
             </label>
             <label className={playgroundStyles.field}>
-              <span className={playgroundStyles.fieldLabel}>历史问题</span>
-              <select
-                className={playgroundStyles.select}
-                value={truthDraft.questionId}
+              <span className={playgroundStyles.fieldLabel}>自由提问</span>
+              <textarea
+                className={playgroundStyles.textarea}
+                rows={4}
+                value={truthDraft.questionText}
                 onChange={(event) => {
                   setTruthDraft((current) => ({
                     ...current,
-                    questionId: event.target.value,
+                    questionText: event.target.value,
                   }));
                 }}
-              >
-                {truthQuestionOptions.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
+            <div className={playgroundStyles.field}>
+              <span className={playgroundStyles.fieldLabel}>和当前祖宗相关的问题提示</span>
+              <div className={playgroundStyles.promptSuggestionGrid}>
+                {truthPromptSuggestions.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    className={playgroundStyles.promptSuggestionButton}
+                    onClick={() => {
+                      setTruthDraft((current) => ({
+                        ...current,
+                        questionText: prompt,
+                      }));
+                    }}
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
             <label className={playgroundStyles.field}>
               <span className={playgroundStyles.fieldLabel}>
                 坦率度 {truthDraft.honesty}%
@@ -935,8 +1008,13 @@ export function PlaygroundPageClient({
                         </div>
                         <p className="muted-note">{reviewStyleNotes[reviewDraft.style]}</p>
                         <div className={playgroundStyles.actionRow}>
-                          <InkButton tone="ghost" onClick={generateReview}>
-                            生成互评
+                          <InkButton
+                            tone="ghost"
+                            onClick={generateReview}
+                            disabled={isReviewGenerating}
+                          >
+                            {isReviewGenerating ? "互评生成中..." : "生成互评"}
+                        
                           </InkButton>
                         </div>
                         {reviewOutput ? (

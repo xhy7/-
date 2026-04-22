@@ -315,6 +315,33 @@
   gap: 12px;
 }
 
+.promptSuggestionGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.promptSuggestionButton {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgba(155, 45, 36, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 250, 242, 0.78);
+  color: var(--ink-strong);
+  font: inherit;
+  line-height: 1.65;
+  text-align: left;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.promptSuggestionButton:hover {
+  border-color: rgba(155, 45, 36, 0.32);
+  box-shadow: 0 8px 18px rgba(77, 50, 30, 0.1);
+  transform: translateY(-1px);
+}
+
 .promptDetails {
   padding: 14px 16px;
   border: 1px solid rgba(88, 58, 36, 0.12);

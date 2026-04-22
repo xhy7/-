@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 import {
   appendConversationRecord,
@@ -116,23 +116,63 @@ const supportedAncestors: AncestorOption[] = [
   { id: "ying-zheng", name: "嬴政" },
   { id: "zhao-gao", name: "赵高" },
 ];
-const truthQuestionOptions = [
-  {
-    id: "hongmen-banquet",
-    label: "鸿门宴到底谁先动了杀心？",
-    reveal: "回答更容易暴露权力直觉和谁在犹疑。",
-  },
-  {
-    id: "wutai-poetry",
-    label: "乌台诗案里最不该说出口的是哪一句？",
-    reveal: "重点不止是诗句本身，也是谁在等一个借题发挥的口子。",
-  },
-  {
-    id: "chenqiao",
-    label: "陈桥兵变更像众望所归还是排演好的戏？",
-    reveal: "一旦反骨感更高，回答更偏向拆台与拆局。",
-  },
+const truthQuestionPrompts: Record<string, string[]> = {
+  "su-shi": [
+    "如果乌台诗案重来一次，哪一句话你仍然忍不住要写？",
+    "你最怕别人把你的豁达误读成什么？",
+    "如果被贬黄州当天能收到一条现代私信，你希望里面写什么？",
+  ],
+  "li-qingzhao": [
+    "你最不愿意被后人只用哪一个词概括？",
+    "如果《如梦令》下面出现吵架评论区，你会亲自回哪一句？",
+    "哪一段离散记忆最不适合被改成热搜标题？",
+  ],
+  "li-bai": [
+    "如果把酒全撤掉，你还剩下几分狂气？",
+    "你写给朋友的诗里，哪一句其实最像求救？",
+    "如果今天不能远游，你会把豪情砸向哪里？",
+  ],
+  "wang-an-shi": [
+    "如果变法失败只能怪一个环节，你会先承认哪一个？",
+    "你最受不了反对者把你说成哪一种人？",
+    "当所有人都说稳一点时，你会怎样判断还能不能再推一步？",
+  ],
+  "wu-zetian": [
+    "如果无字碑能弹出一条弹幕，你最不想看见哪一句？",
+    "你更在意后人承认你的能力，还是承认你的代价？",
+    "当权力和亲情正面冲突时，你会先保住什么？",
+  ],
+  "ying-zheng": [
+    "如果大秦只能留下一个制度，你会留下哪一个？",
+    "你最不能容忍后人把统一说成什么？",
+    "如果群臣匿名给你打分，你最想知道哪一项？",
+  ],
+  "zhao-gao": [
+    "指鹿为马那一刻，你最想测试的到底是谁？",
+    "如果你有一次洗白机会，你会先改写哪件事？",
+    "你最怕别人看穿你的哪一种算计？",
+  ],
+};
+const fallbackTruthQuestionPrompts = [
+  "如果后人只能问你一个不体面的问题，你觉得会是什么？",
+  "你最希望被理解的一面，和最怕被看穿的一面分别是什么？",
+  "如果当年的关键抉择重来一次，你会改掉哪一个细节？",
 ];
+const getTruthQuestionPrompts = (ancestorId: string) =>
+  truthQuestionPrompts[ancestorId] ?? fallbackTruthQuestionPrompts;
+const getDefaultTruthQuestion = (ancestorId: string) =>
+  getTruthQuestionPrompts(ancestorId)[0] ?? fallbackTruthQuestionPrompts[0];
+const ancestorReviewVoices: Record<string, string> = {
+  "su-shi": "苏轼点评要有松弛幽默、转圜能力和生活气，先把刺化成笑，再落到一句可改的地方。",
+  "li-qingzhao": "李清照点评要细、准、带审美洁癖，抓字词气息和情绪真伪，不要写成豪放派口吻。",
+  "li-bai": "李白点评要有飞扬气和夸张判断，重看气势、胆量、酒意般的腾挪，少做工整论文腔。",
+  "wang-an-shi": "王安石点评要像在审方案，重结构、利弊、执行路径和是否敢破旧局。",
+  "wu-zetian": "武则天点评要有上位者视角，重权力叙事、名声控制和作品是否镇得住场。",
+  "ying-zheng": "嬴政点评要有帝王裁断感，重秩序、统一、尺度和作品能否立成制度般的句子。",
+  "zhao-gao": "赵高点评要阴柔、试探、带操控感，专挑话术漏洞和可以借势翻盘的地方。",
+};
+const getAncestorReviewVoice = (ancestorId: string) =>
+  ancestorReviewVoices[ancestorId] ?? "点评必须保留点评者本人经历、气质和说话习惯，避免只套用风格标签。";
 const modernTopicOptions = [
   {
     id: "office",
@@ -268,7 +308,7 @@ export function HomePlaygroundSection({
     getConversationMemory,
     () => [],
   );
-  const buildAncestorDerivedState = (ancestorId: string) => {
+  const buildAncestorDerivedState = useCallback((ancestorId: string) => {
     const records = conversationRecords.filter((record) => record.ancestorId === ancestorId);
     const moodSnapshot = deriveMoodSnapshotFromHistory(baseMoodSnapshot, records);
     const traitVector = deriveTraitVectorFromHistory(baseTraitVector, records);
@@ -283,14 +323,13 @@ export function HomePlaygroundSection({
       traitVector,
       dominantTraitLabels,
     };
-  };
+  }, [baseMoodSnapshot, baseTraitVector, conversationRecords]);
   const selectedRuntime = useMemo(
     () => buildAncestorDerivedState(selectedAncestor.id),
-    [baseMoodSnapshot, baseTraitVector, conversationRecords, selectedAncestor.id],
+    [buildAncestorDerivedState, selectedAncestor.id],
   );
   const selectedRecords = selectedRuntime.records;
   const derivedMoodSnapshot = selectedRuntime.moodSnapshot;
-  const derivedTraitVector = selectedRuntime.traitVector;
   const dominantTraits = selectedRuntime.dominantTraitLabels;
   const [activeWorkshopMode, setActiveWorkshopMode] = useState<PlayableModeId>("cross-time-quarrel");
   const [activityNote, setActivityNote] = useState(
@@ -309,7 +348,7 @@ export function HomePlaygroundSection({
   });
   const [truthDraft, setTruthDraft] = useState({
     speakerId: selectedAncestor.id,
-    questionId: truthQuestionOptions[0].id,
+    questionText: getDefaultTruthQuestion(selectedAncestor.id),
     honesty: 58,
     playMode: "真心话",
   });
@@ -330,6 +369,7 @@ export function HomePlaygroundSection({
     style: "毒舌" as ReviewStyle,
   });
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const fallbackAncestorId = getFallbackAncestorId(selectedAncestor.id);
 
@@ -342,6 +382,7 @@ export function HomePlaygroundSection({
     setTruthDraft((current) => ({
       ...current,
       speakerId: selectedAncestor.id,
+      questionText: getDefaultTruthQuestion(selectedAncestor.id),
     }));
     setFusionDraft((current) => ({
       ...current,
@@ -361,6 +402,7 @@ export function HomePlaygroundSection({
           : current.reviewerId,
     }));
   }, [selectedAncestor.id]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const requestAiResult = async (
     ancestorId: string,
@@ -445,8 +487,8 @@ export function HomePlaygroundSection({
 
   const generateTruthOrDare = async () => {
     const speaker = getAncestorById(truthDraft.speakerId).name;
-    const question =
-      truthQuestionOptions.find((item) => item.id === truthDraft.questionId) ?? truthQuestionOptions[0];
+    const question = truthDraft.questionText.trim() || getDefaultTruthQuestion(truthDraft.speakerId);
+    const promptHints = getTruthQuestionPrompts(truthDraft.speakerId).join(" / ");
     const truthTone =
       truthDraft.honesty >= 70 ? "直球" : truthDraft.honesty <= 35 ? "闪躲" : "留白";
 
@@ -456,8 +498,8 @@ export function HomePlaygroundSection({
         selectedAncestor.id,
         "daily-chat",
         truthDraft.playMode === "真心话" ? "prototype" : "ooc",
-        `请输出${truthDraft.playMode}的最终内容，不要解释过程。出场人物：${speaker}；问题：${question.label}；参考线索：${question.reveal}；坦率度：${truthDraft.honesty}%（${truthTone}）。`,
-        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。`,
+        `请输出${truthDraft.playMode}的最终内容，不要解释过程。出场人物：${speaker}；玩家自由提问：${question}；坦率度：${truthDraft.honesty}%（${truthTone}）。`,
+        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。同一玩法下请贴合${speaker}的生平、口吻与心理盲点；可参考但不要照抄这些提示：${promptHints}。`,
       );
       setPlayResult(
         toPlayResult(
@@ -559,6 +601,7 @@ export function HomePlaygroundSection({
 
     const reviewer = getAncestorById(reviewDraft.reviewerId);
     const reviewerRuntime = buildAncestorDerivedState(reviewer.id);
+    const reviewerVoice = getAncestorReviewVoice(reviewer.id);
 
     setIsReviewGenerating(true);
     try {
@@ -566,8 +609,8 @@ export function HomePlaygroundSection({
         reviewer.id,
         "creative-feedback",
         "prototype",
-        `请直接输出对这份${playResult.reviewContext.sourceLabel}的最终互评，不要分析过程。点评者：${reviewer.name}；点评风格：${reviewDraft.style}；作者：${playResult.reviewContext.authors}；原作内容：${playResult.reviewContext.originalWork}。`,
-        `点评风格要求：${reviewStyleNotes[reviewDraft.style]} 请始终保留 ${reviewer.name} 本人的人格辨识度，不要写成通用评论模板。当前性格向量：${reviewerRuntime.dominantTraitLabels.join("、")}。`,
+        `请直接输出对这份${playResult.reviewContext.sourceLabel}的最终互评，不要分析过程。点评者：${reviewer.name}；点评风格：${reviewDraft.style}；作者：${playResult.reviewContext.authors}；原作内容：${playResult.reviewContext.originalWork}。同一点评风格下，不同点评者必须有明显不同的关注点、比喻、句式和价值判断。`,
+        `点评风格要求：${reviewStyleNotes[reviewDraft.style]} 点评者专属声音：${reviewerVoice} 请让${reviewer.name}先按自己的历史处境和性格挑刺，再套入风格强度；不要写成通用评论模板。当前性格向量：${reviewerRuntime.dominantTraitLabels.join("、")}。`,
       );
 
       setReviewResult({
@@ -587,6 +630,8 @@ export function HomePlaygroundSection({
   };
 
   const renderWorkshopForm = () => {
+    const truthPromptSuggestions = getTruthQuestionPrompts(truthDraft.speakerId);
+
     switch (activeWorkshopMode) {
       case "cross-time-quarrel":
         return (
@@ -699,9 +744,11 @@ export function HomePlaygroundSection({
                 className={styles.select}
                 value={truthDraft.speakerId}
                 onChange={(event) => {
+                  const speakerId = event.target.value;
                   setTruthDraft((current) => ({
                     ...current,
-                    speakerId: event.target.value,
+                    speakerId,
+                    questionText: getDefaultTruthQuestion(speakerId),
                   }));
                 }}
               >
@@ -729,24 +776,39 @@ export function HomePlaygroundSection({
               </select>
             </label>
             <label className={styles.field}>
-              <span className={styles.fieldLabel}>历史问题</span>
-              <select
-                className={styles.select}
-                value={truthDraft.questionId}
+              <span className={styles.fieldLabel}>自由提问</span>
+              <textarea
+                className={styles.textarea}
+                rows={4}
+                value={truthDraft.questionText}
                 onChange={(event) => {
                   setTruthDraft((current) => ({
                     ...current,
-                    questionId: event.target.value,
+                    questionText: event.target.value,
                   }));
                 }}
-              >
-                {truthQuestionOptions.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
+              />
             </label>
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>和当前祖宗相关的问题提示</span>
+              <div className={styles.promptSuggestionGrid}>
+                {truthPromptSuggestions.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    className={styles.promptSuggestionButton}
+                    onClick={() => {
+                      setTruthDraft((current) => ({
+                        ...current,
+                        questionText: prompt,
+                      }));
+                    }}
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </div>
             <label className={styles.field}>
               <span className={styles.fieldLabel}>坦率度 {truthDraft.honesty}%</span>
               <input
