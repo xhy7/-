@@ -192,3 +192,71 @@ export interface ModeIntentPreview {
   systemNotice: string;
   nextStepLabel: string;
 }
+
+// ========== 认证模块类型定义 ==========
+
+export interface UserSession {
+  userId: string;
+  displayName: string;
+  avatarGlyph: string;
+  bondLevel: number;
+  favoriteAncestorId?: string;
+}
+
+export interface AuthCredentials {
+  username: string;
+  password: string;
+  remember?: boolean;
+}
+
+export interface RegisterCredentials extends AuthCredentials {
+  email?: string;
+}
+
+export interface AuthResponse {
+  session: UserSession;
+  token: string;
+  expiresAt: number;
+}
+
+export type AuthErrorCode =
+  | "INVALID_CREDENTIALS"
+  | "USER_EXISTS"
+  | "NETWORK_ERROR"
+  | "WEAK_PASSWORD"
+  | "INVALID_USERNAME";
+
+export interface AuthError {
+  code: AuthErrorCode;
+  message: string;
+  field?: "username" | "password" | "email" | "code" | "newPassword";
+}
+
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetConfirm {
+  email: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface PasswordResetResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface AuthGateway {
+  login(credentials: AuthCredentials): Promise<AuthResponse>;
+  register(credentials: RegisterCredentials): Promise<AuthResponse>;
+  logout(): Promise<void>;
+  getSession(): Promise<UserSession | null>;
+  requestPasswordReset(request: PasswordResetRequest): Promise<PasswordResetResponse>;
+  confirmPasswordReset(confirm: PasswordResetConfirm): Promise<PasswordResetResponse>;
+}
+
+// 扩展 HomePageData 添加用户会话
+export interface HomePageDataWithAuth extends HomePageData {
+  userSession?: UserSession | null;
+}
