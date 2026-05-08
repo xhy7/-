@@ -14,6 +14,11 @@ const SESSION_KEY = "user_session";
 const TOKEN_KEY = "auth_token";
 const REGISTERED_USERS_KEY = "registered_users";
 
+/** 为 true 时走 /api/auth/*；未配置时生产构建也使用本地 Mock，避免部署后 404。接入真实后端后再在部署环境设为 true。 */
+function isAuthApiEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_AUTH_USE_API === "true";
+}
+
 // 内置测试账号
 const DEFAULT_TEST_USER = {
   username: "test",
@@ -29,7 +34,7 @@ const DEFAULT_TEST_USER = {
 
 export const authGateway: AuthGateway = {
   async login(credentials: AuthCredentials): Promise<AuthResponse> {
-    if (process.env.NODE_ENV === "development") {
+    if (!isAuthApiEnabled()) {
       return mockLogin(credentials);
     }
 
@@ -48,7 +53,7 @@ export const authGateway: AuthGateway = {
   },
 
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-    if (process.env.NODE_ENV === "development") {
+    if (!isAuthApiEnabled()) {
       return mockRegister(credentials);
     }
 
@@ -94,7 +99,7 @@ export const authGateway: AuthGateway = {
   },
 
   async requestPasswordReset(request: PasswordResetRequest): Promise<PasswordResetResponse> {
-    if (process.env.NODE_ENV === "development") {
+    if (!isAuthApiEnabled()) {
       return mockRequestPasswordReset(request);
     }
 
@@ -113,7 +118,7 @@ export const authGateway: AuthGateway = {
   },
 
   async confirmPasswordReset(confirm: PasswordResetConfirm): Promise<PasswordResetResponse> {
-    if (process.env.NODE_ENV === "development") {
+    if (!isAuthApiEnabled()) {
       return mockConfirmPasswordReset(confirm);
     }
 
@@ -240,9 +245,18 @@ async function mockRegister(
 export function saveSession(session: UserSession, token: string, remember?: boolean): void {
   if (typeof window === "undefined") return;
 
-  const storage = remember ? localStorage : sessionStorage;
-  storage.setItem(SESSION_KEY, JSON.stringify(session));
-  storage.setItem(TOKEN_KEY, token);
+  const serialized = JSON.stringify(session);
+  if (remember === true) {
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
+    localStorage.setItem(SESSION_KEY, serialized);
+    localStorage.setItem(TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.setItem(SESSION_KEY, serialized);
+    sessionStorage.setItem(TOKEN_KEY, token);
+  }
 }
 
 export function clearSession(): void {

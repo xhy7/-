@@ -1,4 +1,6 @@
 import { useState, useMemo } from "react";
+import { authGateway } from "./auth-gateway";
+import type { AuthError } from "@/shared/contracts/home";
 
 interface ForgotPasswordFormProps {
   onSubmit: (data: {
@@ -10,6 +12,10 @@ interface ForgotPasswordFormProps {
   error: string | null;
   step: "email" | "verify" | "reset";
   onStepChange: (step: "email" | "verify" | "reset") => void;
+}
+
+function isAuthError(err: unknown): err is AuthError {
+  return typeof err === "object" && err !== null && "message" in err;
 }
 
 export function ForgotPasswordForm({ 
@@ -32,6 +38,7 @@ export function ForgotPasswordForm({
   const [codeTouched, setCodeTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   const emailError = useMemo(() => {
     if (!email || !emailTouched) return null;
@@ -87,16 +94,18 @@ export function ForgotPasswordForm({
   }, [confirmPassword, newPassword, confirmPasswordTouched]);
 
   const handleSendCode = async () => {
-    if (emailError) return;
-    
+    setEmailTouched(true);
+    if (emailError || !email.trim()) return;
+
+    setSendError(null);
     setIsSendingCode(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await authGateway.requestPasswordReset({ email: email.trim() });
       setIsCodeSent(true);
       setCountdown(60);
-      
+
       const timer = setInterval(() => {
-        setCountdown(prev => {
+        setCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
             return 0;
@@ -104,6 +113,15 @@ export function ForgotPasswordForm({
           return prev - 1;
         });
       }, 1000);
+
+      if (step === "email") {
+        onStepChange("verify");
+      }
+    } catch (err) {
+      const message = isAuthError(err)
+        ? err.message
+        : "网络异常，请稍后重试";
+      setSendError(message);
     } finally {
       setIsSendingCode(false);
     }
@@ -111,7 +129,7 @@ export function ForgotPasswordForm({
 
   const handleEmailSubmit = async () => {
     setEmailTouched(true);
-    if (emailError) return;
+    if (emailError || !email.trim()) return;
     await handleSendCode();
   };
 
@@ -137,6 +155,8 @@ export function ForgotPasswordForm({
   const isVerifyDisabled = isPending || !code || !!codeError;
   const isResetDisabled = isPending || !newPassword || !confirmPassword || 
     !!passwordError || !!confirmError || !!codeError;
+
+  const displayError = error ?? sendError;
 
   if (step === "email") {
     return (
@@ -165,10 +185,10 @@ export function ForgotPasswordForm({
           )}
         </div>
 
-        {error && (
+        {displayError && (
           <div className="auth-error" role="alert">
             <span className="auth-error-icon">⚠️</span>
-            <span>{error}</span>
+            <span>{displayError}</span>
           </div>
         )}
 
@@ -237,10 +257,10 @@ export function ForgotPasswordForm({
           )}
         </div>
 
-        {error && (
+        {displayError && (
           <div className="auth-error" role="alert">
             <span className="auth-error-icon">⚠️</span>
-            <span>{error}</span>
+            <span>{displayError}</span>
           </div>
         )}
 
@@ -366,10 +386,10 @@ export function ForgotPasswordForm({
         )}
       </div>
 
-      {error && (
+      {displayError && (
         <div className="auth-error" role="alert">
           <span className="auth-error-icon">⚠️</span>
-          <span>{error}</span>
+          <span>{displayError}</span>
         </div>
       )}
 

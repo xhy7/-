@@ -48,25 +48,7 @@ export function ForgotPasswordPageClient() {
   };
 
   const handleStepChange = (newStep: "email" | "verify" | "reset") => {
-    if (newStep === "verify") {
-      handleSendVerificationCode();
-    } else {
-      setStep(newStep);
-    }
-  };
-
-  const handleSendVerificationCode = async () => {
-    setIsPending(true);
-    setError(null);
-    try {
-      await authGateway.requestPasswordReset({ email });
-      setStep("verify");
-    } catch (err) {
-      const authError = err as AuthError;
-      setError(authError.message);
-    } finally {
-      setIsPending(false);
-    }
+    setStep(newStep);
   };
 
   if (step === "success") {
