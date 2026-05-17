@@ -11,6 +11,7 @@ import {
   getConversationMemory,
   subscribeConversationMemory,
   summarizeConversationHistory,
+  EMPTY_RECORDS,
 } from "@/shared/ai/interaction-memory";
 import type {
   AiReplyMode,
@@ -78,7 +79,7 @@ export function ChatPageClient({ data, ancestorId }: ChatPageClientProps) {
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    () => [],
+    () => EMPTY_RECORDS,
   );
   const ancestorRecords = conversationRecords.filter(
     (record) => record.ancestorId === ancestor.id,
@@ -196,6 +197,9 @@ export function ChatPageClient({ data, ancestorId }: ChatPageClientProps) {
             </Link>
             <Link href="/growth" className={styles.quickLink}>
               查看养成变化
+            </Link>
+            <Link href="/playground" className={styles.quickLink}>
+              进入玩法页面
             </Link>
           </div>
         </div>

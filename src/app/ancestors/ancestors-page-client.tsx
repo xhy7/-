@@ -16,6 +16,7 @@ import {
   getConversationMemory,
   subscribeConversationMemory,
   summarizeConversationHistory,
+  EMPTY_RECORDS,
 } from "@/shared/ai/interaction-memory";
 import type { HomePageData } from "@/shared/contracts/home";
 import { TagPill } from "@/shared/ui/primitives";
@@ -35,7 +36,7 @@ export function AncestorsPageClient({ data }: AncestorsPageClientProps) {
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    () => [],
+    () => EMPTY_RECORDS,
   );
 
   const ancestors = [data.featuredAncestor, ...data.roster];

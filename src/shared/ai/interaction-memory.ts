@@ -31,7 +31,7 @@ export interface FateUnlockEvaluation {
 
 const STORAGE_KEY = "laozuzong:conversation-memory";
 const STORAGE_EVENT = "laozuzong:conversation-memory-change";
-const EMPTY_RECORDS: AncestorConversationRecord[] = [];
+export const EMPTY_RECORDS: AncestorConversationRecord[] = [];
 
 let cachedRawMemory: string | null = null;
 let cachedParsedMemory: AncestorConversationRecord[] = EMPTY_RECORDS;

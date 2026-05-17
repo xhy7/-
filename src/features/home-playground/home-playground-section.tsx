@@ -9,6 +9,7 @@ import {
   deriveTraitVectorFromHistory,
   getConversationMemory,
   subscribeConversationMemory,
+  EMPTY_RECORDS,
 } from "@/shared/ai/interaction-memory";
 import type {
   AiReplyRequest,
@@ -38,6 +39,14 @@ type ReviewStyle = "毒舌" | "委婉挖苦" | "降维打击" | "难得认可";
 interface AncestorOption {
   id: string;
   name: string;
+}
+
+interface QuarrelRound {
+  speakerId: string;
+  speakerName: string;
+  content: string;
+  subtext: string;
+  styleTags: string[];
 }
 
 interface PlayReviewContext {
@@ -306,7 +315,7 @@ export function HomePlaygroundSection({
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    () => [],
+    () => EMPTY_RECORDS,
   );
   const buildAncestorDerivedState = useCallback((ancestorId: string) => {
     const records = conversationRecords.filter((record) => record.ancestorId === ancestorId);
@@ -368,6 +377,7 @@ export function HomePlaygroundSection({
     reviewerId: getFallbackAncestorId(selectedAncestor.id),
     style: "毒舌" as ReviewStyle,
   });
+  const [quarrelRounds, setQuarrelRounds] = useState<QuarrelRound[]>([]);
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -455,29 +465,71 @@ export function HomePlaygroundSection({
   });
 
   const generateCrossTimeQuarrel = async () => {
-    const challenger = getAncestorById(quarrelDraft.challengerId).name;
-    const opponent = getAncestorById(quarrelDraft.opponentId).name;
-    const mediator = quarrelDraft.mediatorId ? getAncestorById(quarrelDraft.mediatorId).name : "无人拉架";
+    const challenger = getAncestorById(quarrelDraft.challengerId);
+    const opponent = getAncestorById(quarrelDraft.opponentId);
+    const mediator = quarrelDraft.mediatorId ? getAncestorById(quarrelDraft.mediatorId) : null;
+    const isFirstRound = quarrelRounds.length === 0;
+
+    // Determine who speaks this round
+    let speaker: AncestorOption;
+    let speakerRole: string;
+    if (isFirstRound) {
+      speaker = challenger;
+      speakerRole = "甲方";
+    } else {
+      const roundIndex = quarrelRounds.length;
+      // Odd rounds: opponent, even: challenger; every 4th round mediator if present
+      if (mediator && roundIndex > 0 && roundIndex % 4 === 3) {
+        speaker = mediator;
+        speakerRole = "调解人";
+      } else if (roundIndex % 2 === 0) {
+        speaker = challenger;
+        speakerRole = "甲方";
+      } else {
+        speaker = opponent;
+        speakerRole = "乙方";
+      }
+    }
+
+    // Build dialogue context from previous rounds
+    const previousDialogue = quarrelRounds
+      .map((round) => `${round.speakerName}：「${round.content}」`)
+      .join("\n");
 
     setIsGenerating(true);
     try {
       const aiResponse = await requestAiResult(
-        selectedAncestor.id,
+        speaker.id,
         "conflict-mediation",
         "prototype",
-        `请直接输出最终争端现场文本，不要分析过程。甲方：${challenger}；乙方：${opponent}；第三人：${mediator}；主题：${quarrelDraft.conflictTopic}；裁决重心：${quarrelDraft.rulingBias}。`,
-        `${selectedAncestor.name} 当前性格向量：${dominantTraits.join("、")}。`,
+        isFirstRound
+          ? `这是一场跨时空吵架。你是${speakerRole}（${speaker.name}），正在和${opponent.name}就「${quarrelDraft.conflictTopic}」展开对峙。请只输出${speaker.name}的开场白（一句话或一小段话），语气要符合${speaker.name}的历史性格和说话风格。不要输出对方的话，不要分析过程。`
+          : `跨时空吵架进行中，你是${speakerRole}（${speaker.name}）。
+对方：${opponent.name}${mediator ? `；调解人：${mediator.name}` : ""}。
+争端主题：「${quarrelDraft.conflictTopic}」；裁决重心：${quarrelDraft.rulingBias}。
+
+之前的对话：
+${previousDialogue}
+
+请只输出${speaker.name}的回应（一句话或一小段话），要紧接上一轮的话反驳或继续攻击，语气符合${speaker.name}的历史性格。不要输出对方的话，不要分析过程。`,
+        `${speaker.name} 当前性格向量：${dominantTraits.join("、")}。`,
       );
-      setPlayResult(
-        toPlayResult(
-          aiResponse,
-          `${challenger} vs ${opponent}`,
-          `已生成争端现场，裁决偏向「${quarrelDraft.rulingBias}」。`,
-          [challenger, opponent, quarrelDraft.rulingBias],
-        ),
-      );
+
+      const newRound: QuarrelRound = {
+        speakerId: speaker.id,
+        speakerName: speaker.name,
+        content: aiResponse.output.reply,
+        subtext: aiResponse.output.subtext,
+        styleTags: aiResponse.output.styleTags,
+      };
+
+      setQuarrelRounds((prev) => [...prev, newRound]);
       setReviewResult(null);
-      setActivityNote(`争端现场已生成，当前由 ${selectedAncestor.name} 的人格视角统筹输出。`);
+      setActivityNote(
+        isFirstRound
+          ? `${speaker.name}（${speakerRole}）已率先开口！点击「继续下一回合」让对方回应。`
+          : `${speaker.name}（${speakerRole}）已回击！继续推进对峙。`,
+      );
     } catch (error) {
       setActivityNote(error instanceof Error ? error.message : "生成失败，请稍后重试。");
     } finally {
@@ -730,8 +782,28 @@ export function HomePlaygroundSection({
             </p>
             <div className={styles.actionRow}>
               <InkButton onClick={generateCrossTimeQuarrel} disabled={isGenerating}>
-                {isGenerating ? "生成中..." : "生成争端现场"}
+                {isGenerating
+                  ? `正在请 ${quarrelRounds.length === 0
+                    ? getAncestorById(quarrelDraft.challengerId).name
+                    : quarrelRounds.length % 2 === 0
+                      ? getAncestorById(quarrelDraft.challengerId).name
+                      : getAncestorById(quarrelDraft.opponentId).name
+                  } 开口...`
+                  : quarrelRounds.length === 0
+                    ? "开始对峙"
+                    : "继续下一回合"}
               </InkButton>
+              {quarrelRounds.length > 0 ? (
+                <InkButton
+                  tone="ghost"
+                  onClick={() => {
+                    setQuarrelRounds([]);
+                    setActivityNote("对峙已重置，可以重新开始。");
+                  }}
+                >
+                  重新开始
+                </InkButton>
+              ) : null}
             </div>
           </div>
         );
@@ -1083,6 +1155,7 @@ export function HomePlaygroundSection({
                     setActiveWorkshopMode(mode.id as PlayableModeId);
                     setPlayResult(null);
                     setReviewResult(null);
+                    setQuarrelRounds([]);
                     setActivityNote(`已切换到「${mode.title}」AI 工坊。`);
                   }
                   void onRequestMode?.(mode.id);
@@ -1126,6 +1199,7 @@ export function HomePlaygroundSection({
                 setActiveWorkshopMode(mode.id as PlayableModeId);
                 setPlayResult(null);
                 setReviewResult(null);
+                setQuarrelRounds([]);
                 setActivityNote(`已切换到「${mode.title}」AI 工坊。`);
               }}
             >
@@ -1138,7 +1212,57 @@ export function HomePlaygroundSection({
           <div className={`${styles.studioPanel} paper-card`}>{renderWorkshopForm()}</div>
 
           <div className={`${styles.resultPanel} paper-card paper-card--muted`}>
-            {playResult ? (
+            {activeWorkshopMode === "cross-time-quarrel" && quarrelRounds.length > 0 ? (
+              <div className={styles.resultStack}>
+                <div>
+                  <p className="eyebrow">对峙现场</p>
+                  <h3 className={styles.resultTitle}>
+                    {getAncestorById(quarrelDraft.challengerId).name} vs {getAncestorById(quarrelDraft.opponentId).name}
+                  </h3>
+                </div>
+                <p className="section-body">
+                  争端主题：「{quarrelDraft.conflictTopic}」· 已进行 {quarrelRounds.length} 回合
+                </p>
+                <div className={styles.quarrelTimeline}>
+                  {quarrelRounds.map((round, index) => {
+                    const isChallenger = round.speakerId === quarrelDraft.challengerId;
+                    const isMediator = quarrelDraft.mediatorId && round.speakerId === quarrelDraft.mediatorId;
+                    const side = isMediator ? "center" : isChallenger ? "left" : "right";
+
+                    return (
+                      <div key={index} className={styles.quarrelBubble} data-side={side}>
+                        <span className={styles.quarrelSpeaker}>{round.speakerName}</span>
+                        <p className={styles.quarrelContent}>{round.content}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className={styles.actionRow}>
+                  <InkButton onClick={generateCrossTimeQuarrel} disabled={isGenerating}>
+                    {isGenerating ? "生成中..." : "继续下一回合"}
+                  </InkButton>
+                  <InkButton
+                    tone="ghost"
+                    onClick={() => {
+                      setQuarrelRounds([]);
+                      setActivityNote("对峙已重置，可以重新开始。");
+                    }}
+                  >
+                    重新开始
+                  </InkButton>
+                </div>
+              </div>
+            ) : activeWorkshopMode === "cross-time-quarrel" && quarrelRounds.length === 0 ? (
+              <div className={styles.resultStack}>
+                <div>
+                  <p className="eyebrow">等待出招</p>
+                  <h3 className={styles.resultTitle}>对峙剧场</h3>
+                </div>
+                <p className="section-body">
+                  配置好甲方、乙方和争端主题后，点击「开始对峙」即可逐步展开对话。
+                </p>
+              </div>
+            ) : playResult ? (
               <div className={styles.resultStack}>
                 <div>
                   <p className="eyebrow">结果预览</p>

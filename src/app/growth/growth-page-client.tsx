@@ -11,6 +11,7 @@ import {
   buildDerivedNurtureSummary,
   getConversationMemory,
   subscribeConversationMemory,
+  EMPTY_RECORDS,
 } from "@/shared/ai/interaction-memory";
 import type { HomePageData } from "@/shared/contracts/home";
 import { TagPill } from "@/shared/ui/primitives";
@@ -32,7 +33,7 @@ export function GrowthPageClient({
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    () => [],
+    () => EMPTY_RECORDS,
   );
   const [activityNote, setActivityNote] = useState(
     "这里集中记录你和老祖宗的互动如何改变情绪与性格向量。",

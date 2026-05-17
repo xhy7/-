@@ -9,6 +9,7 @@ import {
   evaluateFateUnlock,
   getConversationMemory,
   subscribeConversationMemory,
+  EMPTY_RECORDS,
 } from "@/shared/ai/interaction-memory";
 import type { HomePageData } from "@/shared/contracts/home";
 import { TagPill } from "@/shared/ui/primitives";
@@ -34,7 +35,7 @@ export function FateDetailPageClient({
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
-    () => [],
+    () => EMPTY_RECORDS,
   );
 
   if (!fate) {
