@@ -25,6 +25,8 @@ import styles from "../page-shell.module.css";
 interface PlaygroundPageClientProps {
   data: HomePageData;
   initialAncestorId?: string;
+  initialModeId?: string;
+  entrySource?: string;
 }
 
 type PlayableModeId =
@@ -32,6 +34,16 @@ type PlayableModeId =
   | "truth-or-dare"
   | "fusion-creation"
   | "modern-reframe";
+
+const playableModeIds: PlayableModeId[] = [
+  "cross-time-quarrel",
+  "truth-or-dare",
+  "fusion-creation",
+  "modern-reframe",
+];
+
+const isPlayableModeId = (modeId?: string): modeId is PlayableModeId =>
+  Boolean(modeId && playableModeIds.includes(modeId as PlayableModeId));
 
 type CreationFormat = "诗" | "词" | "对联" | "短文";
 type ReviewStyle = "毒舌" | "委婉挖苦" | "降维打击" | "难得认可";
@@ -148,25 +160,38 @@ const getAncestorReviewVoice = (ancestorId: string) =>
 export function PlaygroundPageClient({
   data,
   initialAncestorId,
+  initialModeId,
+  entrySource,
 }: PlaygroundPageClientProps) {
+  const ancestors = [data.featuredAncestor, ...data.roster];
+  const initialSelectedAncestorId = ancestors.some(
+    (ancestor) => ancestor.id === initialAncestorId,
+  )
+    ? initialAncestorId!
+    : data.featuredAncestor.id;
+  const initialFallbackAncestorId =
+    ancestors.find((ancestor) => ancestor.id !== initialSelectedAncestorId)?.id ??
+    initialSelectedAncestorId;
+  const isFromDesktopPet = entrySource === "pet";
   const [activityNote, setActivityNote] = useState(
-    "这里集中承载真正可玩的玩法工坊，你可以直接切换祖宗、切换模式并生成结果。",
+    isFromDesktopPet
+      ? "来自桌宠入口，已继承桌宠当前角色与玩法上下文。你可以继续切换模式或直接生成结果。"
+      : "这里集中承载真正可玩的玩法工坊，你可以直接切换祖宗、切换模式并生成结果。",
   );
   const [activeWorkshopMode, setActiveWorkshopMode] =
-    useState<PlayableModeId>("cross-time-quarrel");
+    useState<PlayableModeId>(
+      isPlayableModeId(initialModeId) ? initialModeId : "cross-time-quarrel",
+    );
   const [playResult, setPlayResult] = useState<PlayResult | null>(null);
   const [reviewOutput, setReviewOutput] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isReviewGenerating, setIsReviewGenerating] = useState(false);
-  const [selectedAncestorId, setSelectedAncestorId] = useState(
-    initialAncestorId ?? data.featuredAncestor.id,
-  );
+  const [selectedAncestorId, setSelectedAncestorId] = useState(initialSelectedAncestorId);
   const conversationRecords = useSyncExternalStore(
     subscribeConversationMemory,
     getConversationMemory,
     () => EMPTY_RECORDS,
   );
-  const ancestors = [data.featuredAncestor, ...data.roster];
   const selectedAncestor =
     ancestors.find((ancestor) => ancestor.id === selectedAncestorId) ??
     data.featuredAncestor;
@@ -186,32 +211,32 @@ export function PlaygroundPageClient({
     data.gameplayModes.find((mode) => mode.id === activeWorkshopMode) ??
     data.gameplayModes[0];
   const [quarrelDraft, setQuarrelDraft] = useState({
-    challengerId: data.featuredAncestor.id,
-    opponentId: data.roster[0]?.id ?? data.featuredAncestor.id,
+    challengerId: initialSelectedAncestorId,
+    opponentId: initialFallbackAncestorId,
     mediatorId: "",
     conflictTopic: "到底谁该为今日风波先认错",
     rulingBias: "关系偏袒优先",
   });
   const [truthDraft, setTruthDraft] = useState({
-    speakerId: data.featuredAncestor.id,
-    questionText: getDefaultTruthQuestion(data.featuredAncestor.id),
+    speakerId: initialSelectedAncestorId,
+    questionText: getDefaultTruthQuestion(initialSelectedAncestorId),
     honesty: 58,
     playMode: "真心话",
   });
   const [fusionDraft, setFusionDraft] = useState({
-    primaryId: data.featuredAncestor.id,
-    secondaryId: data.roster[0]?.id ?? data.featuredAncestor.id,
+    primaryId: initialSelectedAncestorId,
+    secondaryId: initialFallbackAncestorId,
     ratio: 70,
     theme: "把加班外卖写成值得传阅的深夜短诗",
     format: "诗" as CreationFormat,
   });
   const [modernDraft, setModernDraft] = useState({
-    speakerId: data.featuredAncestor.id,
+    speakerId: initialSelectedAncestorId,
     topicId: modernTopicOptions[1].id,
     customTopic: "",
   });
   const [reviewDraft, setReviewDraft] = useState({
-    reviewerId: data.roster[0]?.id ?? data.featuredAncestor.id,
+    reviewerId: initialFallbackAncestorId,
     style: "毒舌" as ReviewStyle,
   });
   const [quarrelRounds, setQuarrelRounds] = useState<QuarrelRound[]>([]);
@@ -229,6 +254,49 @@ export function PlaygroundPageClient({
     );
 
     return buildDerivedNurtureSummary(ancestor, data.nurtureSummary, records);
+  };
+  const selectAncestorForWorkshop = (ancestorId: string) => {
+    const fallbackAncestorId =
+      ancestors.find((ancestor) => ancestor.id !== ancestorId)?.id ?? ancestorId;
+
+    setSelectedAncestorId(ancestorId);
+    setQuarrelDraft((current) => ({
+      ...current,
+      challengerId: ancestorId,
+      opponentId:
+        current.opponentId === ancestorId || current.opponentId === current.challengerId
+          ? fallbackAncestorId
+          : current.opponentId,
+    }));
+    setTruthDraft((current) => ({
+      ...current,
+      speakerId: ancestorId,
+      questionText: getDefaultTruthQuestion(ancestorId),
+    }));
+    setFusionDraft((current) => ({
+      ...current,
+      primaryId: ancestorId,
+      secondaryId:
+        current.secondaryId === ancestorId || current.secondaryId === current.primaryId
+          ? fallbackAncestorId
+          : current.secondaryId,
+    }));
+    setModernDraft((current) => ({
+      ...current,
+      speakerId: ancestorId,
+    }));
+    setReviewDraft((current) => ({
+      ...current,
+      reviewerId:
+        !current.reviewerId || current.reviewerId === ancestorId
+          ? fallbackAncestorId
+          : current.reviewerId,
+    }));
+    setQuarrelRounds([]);
+    setQuarrelSummary(null);
+    setPlayResult(null);
+    setReviewOutput(null);
+    setActivityNote(`已切换到 ${getAncestorName(ancestorId)} 的玩法工坊视角。`);
   };
 
   const requestAiResult = async (
@@ -945,6 +1013,7 @@ ${fullDialogue}
           <div className={styles.brandMeta}>
             <TagPill tone="seal">{data.seasonLabel}</TagPill>
             <TagPill tone="muted">{selectedAncestor.name}</TagPill>
+            {isFromDesktopPet ? <TagPill tone="muted">来自桌宠入口</TagPill> : null}
           </div>
           <h1 className="display-title">玩法入口</h1>
           <p className={styles.subtitle}>
@@ -1004,10 +1073,7 @@ ${fullDialogue}
                     className={styles.selectorButton}
                     data-active={ancestor.id === selectedAncestorId}
                     onClick={() => {
-                      setSelectedAncestorId(ancestor.id);
-                      setPlayResult(null);
-                      setReviewOutput(null);
-                      setActivityNote(`已切换到 ${ancestor.name} 的玩法工坊视角。`);
+                      selectAncestorForWorkshop(ancestor.id);
                     }}
                   >
                     <strong>{ancestor.name}</strong>

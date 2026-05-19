@@ -50,4 +50,19 @@ describe("PlaygroundPageClient", () => {
     expect(await screen.findAllByText(/最终争端现场/)).toHaveLength(1);
     expect(screen.getAllByText(/vs/).length).toBeGreaterThan(0);
   });
+
+  it("honors desktop pet entry params for ancestor and mode", () => {
+    render(
+      <PlaygroundPageClient
+        data={homePageData}
+        initialAncestorId="su-shi"
+        initialModeId="modern-reframe"
+        entrySource="pet"
+      />,
+    );
+
+    expect(screen.getByText("来自桌宠入口")).toBeInTheDocument();
+    expect(screen.getByText("生成现代重构")).toBeInTheDocument();
+    expect(screen.getAllByRole("combobox")[0]).toHaveValue("su-shi");
+  });
 });
