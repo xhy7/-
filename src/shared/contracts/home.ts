@@ -4,6 +4,7 @@ export interface HomePageData {
   seasonLabel: string;
   heroNotice: string;
   floatingActionLabel: string;
+  desktopPet: DesktopPetConfig;
   shellStatuses: ShellStatusCard[];
   sectionOrder: HomeSectionBlueprint[];
   aiSandbox: AiReplySandboxConfig;
@@ -90,6 +91,71 @@ export interface AiReplyResponse {
   sceneType: AiSceneType;
   output: AiReplyContent;
   debug: AiReplyDebugInfo;
+}
+
+export type PetActionState =
+  | "idle"
+  | "greet"
+  | "talk"
+  | "poem"
+  | "dragging"
+  | "happy"
+  | "annoyed"
+  | "sleep";
+
+export type PetEntranceId =
+  | "ancestors"
+  | "growth"
+  | "playground"
+  | "chat";
+
+export interface PetSpriteFrameSet {
+  state: PetActionState;
+  framePaths: string[];
+  frameMs: number;
+  loop: boolean;
+}
+
+export interface PetAssetManifest {
+  basePath: string;
+  previewImageSrc: string;
+  defaultState: PetActionState;
+  frameSets: PetSpriteFrameSet[];
+}
+
+export interface PetSpeechLine {
+  id: string;
+  state: PetActionState;
+  text: string;
+  sceneType?: AiSceneType;
+}
+
+export interface PetEntranceItem {
+  id: PetEntranceId;
+  label: string;
+  href: string;
+  description: string;
+  actionState: PetActionState;
+}
+
+export interface DesktopPetCharacter {
+  ancestorId: string;
+  displayName: string;
+  title: string;
+  era: string;
+  assetManifest: PetAssetManifest;
+  supportedActions: PetActionState[];
+  defaultSpeech: string;
+  speechLines: PetSpeechLine[];
+}
+
+export interface DesktopPetConfig {
+  helperTitle: string;
+  helperText: string;
+  defaultAncestorId: string;
+  idlePromptIntervalMs: number;
+  characters: DesktopPetCharacter[];
+  entranceItems: PetEntranceItem[];
 }
 
 export interface AncestorCardSummary {

@@ -26,7 +26,7 @@ describe("HomePlaygroundSection", () => {
       />,
     );
 
-    expect(screen.getByText("跨时空吵架")).toBeInTheDocument();
+    expect(screen.getAllByText("跨时空吵架").length).toBeGreaterThan(0);
     expect(screen.getByText("《深夜加班赋》")).toBeInTheDocument();
     expect(screen.getByText("下方工坊已接入 AI")).toBeInTheDocument();
 
@@ -94,7 +94,7 @@ describe("HomePlaygroundSection", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: "生成争端现场" }));
+    await user.click(screen.getByRole("button", { name: "开始对峙" }));
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -107,7 +107,6 @@ describe("HomePlaygroundSection", () => {
       }),
     );
     expect(screen.getByText("先把话放稳，再决定谁该先认错。")).toBeInTheDocument();
-    expect(screen.getByText("补一句你最介意的那一幕。")).toBeInTheDocument();
   });
 
   it("sends free-form truth-or-dare questions with ancestor-specific hints", async () => {

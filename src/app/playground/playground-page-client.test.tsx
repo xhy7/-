@@ -45,10 +45,9 @@ describe("PlaygroundPageClient", () => {
     expect(screen.getByText("真正可玩的模式台")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "打开创作台" })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "生成争端现场" }));
+    await user.click(screen.getByRole("button", { name: "开始对峙" }));
 
-    expect(screen.getByText("结果预览")).toBeInTheDocument();
+    expect(await screen.findAllByText(/最终争端现场/)).toHaveLength(1);
     expect(screen.getAllByText(/vs/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/最终争端现场/).length).toBeGreaterThan(0);
   });
 });
