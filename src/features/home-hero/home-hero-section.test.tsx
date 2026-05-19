@@ -12,16 +12,39 @@ describe("HomeHeroSection", () => {
       <HomeHeroSection
         featuredAncestor={homePageData.featuredAncestor}
         roster={homePageData.roster}
+        aiSandbox={homePageData.aiSandbox}
+        moodIndex={homePageData.nurtureSummary.moodSnapshot.value}
+        traitVector={homePageData.nurtureSummary.traitVector}
+        getChatHref={(ancestorId) => `/chat/${ancestorId}`}
       />,
     );
 
     await user.click(
-      screen.getByRole("button", { name: /李清照 · 两宋之际/i }),
+      screen.getByRole("button", { name: /赵高 · 秦/i }),
     );
 
-    expect(screen.getByText(/易安居士/)).toBeInTheDocument();
-    expect(
-      screen.getByText(/你若让我评词，我先看你敢不敢受这口薄命锋芒。/),
-    ).toBeInTheDocument();
+    expect(screen.getByAltText("赵高肖像")).toBeInTheDocument();
+    expect(screen.getByText(/中车府令/)).toBeInTheDocument();
+    expect(screen.getByText(/陛下/)).toBeInTheDocument();
+    expect(screen.getByText("已切换轮播祖宗")).toBeInTheDocument();
+    expect(screen.getByText("进入 赵高 的对话场")).toBeInTheDocument();
+  });
+
+  it("keeps the featured state visible", async () => {
+    render(
+      <HomeHeroSection
+        featuredAncestor={homePageData.featuredAncestor}
+        roster={homePageData.roster}
+        aiSandbox={homePageData.aiSandbox}
+        moodIndex={homePageData.nurtureSummary.moodSnapshot.value}
+        traitVector={homePageData.nurtureSummary.traitVector}
+        getChatHref={(ancestorId) => `/chat/${ancestorId}`}
+      />,
+    );
+
+    expect(screen.getByText("当前主推祖宗")).toBeInTheDocument();
+    expect(screen.getByAltText("嬴政肖像")).toBeInTheDocument();
+    expect(screen.getByText("朱印题签")).toBeInTheDocument();
+    expect(screen.getByText("进入 嬴政 的对话场")).toBeInTheDocument();
   });
 });

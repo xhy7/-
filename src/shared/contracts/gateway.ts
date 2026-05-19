@@ -1,4 +1,6 @@
 import type {
+  AiReplyRequest,
+  AiReplyResponse,
   AncestorDetailPreview,
   HomePageData,
   ModeIntentPreview,
@@ -10,3 +12,6 @@ export interface HomePageGateway {
   prepareModeIntent(modeId: string): Promise<ModeIntentPreview>;
 }
 
+export interface AiReplyGateway {
+  generateReply(request: AiReplyRequest): Promise<AiReplyResponse>;
+}
