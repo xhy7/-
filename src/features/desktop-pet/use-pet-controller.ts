@@ -82,7 +82,7 @@ export function usePetController({
   const hasGreetedRef = useRef(false);
   const isDraggingRef = useRef(false);
   const actionStateRef = useRef<PetActionState>("idle");
-  const lastInteractionAtRef = useRef(Date.now());
+  const lastInteractionAtRef = useRef(0);
 
   const activeCharacter = getActiveCharacter(config, activeAncestorId);
   const frameSet = resolveFrameSet(activeCharacter.assetManifest, actionState);
@@ -94,6 +94,10 @@ export function usePetController({
   useEffect(() => {
     actionStateRef.current = actionState;
   }, [actionState]);
+
+  useEffect(() => {
+    lastInteractionAtRef.current = Date.now();
+  }, []);
 
   const clearResetTimer = useCallback(() => {
     if (resetTimerRef.current !== null) {

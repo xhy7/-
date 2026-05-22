@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 
+import { DesktopPetHub } from "@/features/desktop-pet";
 import type { HomePageData, UserSession } from "@/shared/contracts/home";
 import { TagPill } from "@/shared/ui/primitives";
 import { UserProfile, UserAvatar, authGateway, clearSession } from "@/features/auth";
@@ -61,7 +62,7 @@ export function HomePageClient({ data }: HomePageClientProps) {
   };
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${styles.pageLarge}`}>
       <header className={`${styles.header} section-shell`}>
         <div>
           <div className={styles.brandMeta}>
@@ -155,6 +156,10 @@ export function HomePageClient({ data }: HomePageClientProps) {
           </div>
         </div>
       </header>
+
+      <div className={styles.desktopPetBlock}>
+        <DesktopPetHub config={data.desktopPet} />
+      </div>
 
       <nav aria-label="首页功能入口" className={`${styles.entryGrid} section-shell`}>
         {data.sectionOrder.map((section) => (

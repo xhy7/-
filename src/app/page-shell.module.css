@@ -299,6 +299,10 @@
   box-shadow: 0 12px 24px rgba(90, 51, 26, 0.12);
 }
 
+.desktopPetBlock {
+  margin-bottom: 24px;
+}
+
 .entryGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
