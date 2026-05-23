@@ -137,14 +137,70 @@ describe("home page assembly", () => {
     const suShiPet = homePageData.desktopPet.characters.find(
       (character) => character.ancestorId === "su-shi",
     );
+    const panelIds = homePageData.desktopPet.panelItems.map((panel) => panel.id);
+    const quickIntentPanelIds = homePageData.desktopPet.quickIntents.map(
+      (intent) => intent.panelId,
+    );
 
     expect(homePageData.desktopPet.defaultAncestorId).toBe("su-shi");
+    expect(homePageData.desktopPet.defaultPanelId).toBe("profile");
     expect(
       homePageData.desktopPet.entranceItems.map((item) => item.href),
     ).toContain("/playground?ancestorId=su-shi&source=pet");
     expect(suShiPet?.supportedActions).toEqual(
       expect.arrayContaining(["idle", "talk", "poem"]),
     );
+    expect(panelIds).toEqual(["profile", "growth", "playground", "chat"]);
+    expect(quickIntentPanelIds).toEqual(
+      expect.arrayContaining(["profile", "growth", "playground", "chat"]),
+    );
+  });
+
+  it("provides desktop pet content panels for profile, growth, gameplay, and chat", () => {
+    const panels = homePageData.desktopPet.panelItems;
+    const panelById = Object.fromEntries(
+      panels.map((panel) => [panel.id, panel]),
+    );
+
+    expect(panelById.profile?.primaryHref).toBe(
+      "/ancestors?ancestorId=su-shi&source=pet",
+    );
+    expect(panelById.growth?.primaryHref).toBe(
+      "/growth?ancestor=su-shi&source=pet",
+    );
+    expect(panelById.playground?.primaryHref).toBe(
+      "/playground?ancestorId=su-shi&source=pet",
+    );
+    expect(panelById.chat?.primaryHref).toBe("/chat/su-shi?source=pet");
+
+    expect(panelById.profile?.metrics.map((metric) => metric.label)).toContain(
+      "时代",
+    );
+    expect(panelById.growth?.metrics.map((metric) => metric.label)).toContain(
+      "MoodIndex",
+    );
+    expect(panelById.playground?.actions.map((action) => action.modeId)).toEqual(
+      expect.arrayContaining([
+        "cross-time-quarrel",
+        "truth-or-dare",
+        "modern-reframe",
+      ]),
+    );
+    expect(panelById.chat?.actions.map((action) => action.sceneType)).toEqual(
+      expect.arrayContaining(["daily-chat", "creative-feedback"]),
+    );
+  });
+
+  it("provides quick intents that map to existing desktop pet panels", () => {
+    const panelIds = new Set(
+      homePageData.desktopPet.panelItems.map((panel) => panel.id),
+    );
+
+    expect(homePageData.desktopPet.quickIntents).toHaveLength(4);
+    for (const intent of homePageData.desktopPet.quickIntents) {
+      expect(panelIds.has(intent.panelId)).toBe(true);
+      expect(intent.href).toContain("source=pet");
+    }
   });
 
   it("uses the real Su Shi pet manifest frames in the homepage config", () => {

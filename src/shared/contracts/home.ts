@@ -138,6 +138,56 @@ export interface PetEntranceItem {
   actionState: PetActionState;
 }
 
+export type DesktopPetPanelId =
+  | "profile"
+  | "growth"
+  | "playground"
+  | "chat";
+
+export type DesktopPetPanelTone = "ink" | "seal" | "muted";
+
+export interface DesktopPetPanelMetric {
+  id: string;
+  label: string;
+  value: string;
+  note: string;
+  tone: DesktopPetPanelTone;
+}
+
+export interface DesktopPetPanelAction {
+  id: string;
+  label: string;
+  description: string;
+  href: string;
+  actionState: PetActionState;
+  modeId?: string;
+  sceneType?: AiSceneType;
+}
+
+export interface DesktopPetPanelItem {
+  id: DesktopPetPanelId;
+  label: string;
+  eyebrow: string;
+  title: string;
+  summary: string;
+  actionState: PetActionState;
+  primaryHref: string;
+  primaryCtaLabel: string;
+  metrics: DesktopPetPanelMetric[];
+  actions: DesktopPetPanelAction[];
+}
+
+export interface DesktopPetQuickIntent {
+  id: string;
+  label: string;
+  prompt: string;
+  panelId: DesktopPetPanelId;
+  actionState: PetActionState;
+  href?: string;
+  modeId?: string;
+  sceneType?: AiSceneType;
+}
+
 export interface DesktopPetCharacter {
   ancestorId: string;
   displayName: string;
@@ -153,9 +203,12 @@ export interface DesktopPetConfig {
   helperTitle: string;
   helperText: string;
   defaultAncestorId: string;
+  defaultPanelId: DesktopPetPanelId;
   idlePromptIntervalMs: number;
   characters: DesktopPetCharacter[];
   entranceItems: PetEntranceItem[];
+  panelItems: DesktopPetPanelItem[];
+  quickIntents: DesktopPetQuickIntent[];
 }
 
 export interface AncestorCardSummary {
