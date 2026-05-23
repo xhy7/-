@@ -87,6 +87,9 @@
   border: 1px solid rgba(117, 61, 34, 0.14);
   touch-action: none;
   transition: box-shadow 320ms ease;
+  box-shadow:
+    inset 0 0 0 1px rgba(176, 138, 64, 0.14),
+    0 12px 28px rgba(77, 50, 30, 0.08);
 }
 
 .stagePoem {
@@ -360,6 +363,83 @@
     0 0 20px rgba(176, 138, 64, 0.18);
 }
 
+.stageAmbientProfile .stageGlow {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(176, 138, 64, 0.32), transparent 34%),
+    radial-gradient(circle at 78% 72%, rgba(155, 45, 36, 0.16), transparent 30%),
+    linear-gradient(160deg, rgba(82, 46, 30, 0.92), rgba(127, 55, 33, 0.86));
+}
+
+.stageAmbientGrowth .stageGlow {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255, 214, 140, 0.26), transparent 34%),
+    radial-gradient(circle at 78% 72%, rgba(176, 138, 64, 0.18), transparent 30%),
+    linear-gradient(160deg, rgba(82, 46, 30, 0.9), rgba(127, 55, 33, 0.84));
+}
+
+.stageAmbientPlayground .stageGlow {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(155, 45, 36, 0.24), transparent 34%),
+    radial-gradient(circle at 78% 72%, rgba(176, 138, 64, 0.16), transparent 30%),
+    linear-gradient(160deg, rgba(82, 46, 30, 0.92), rgba(106, 52, 32, 0.88));
+}
+
+.stageAmbientChat .stageGlow {
+  background:
+    radial-gradient(circle at 24% 18%, rgba(88, 58, 36, 0.22), transparent 34%),
+    radial-gradient(circle at 78% 72%, rgba(155, 45, 36, 0.14), transparent 30%),
+    linear-gradient(160deg, rgba(82, 46, 30, 0.91), rgba(127, 55, 33, 0.85));
+}
+
+.spritePanelBounce {
+  animation: panel-switch-bounce 560ms ease-out;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.stageColumn {
+  display: grid;
+  gap: 14px;
+}
+
+.panelColumn {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelMobileToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(117, 61, 34, 0.16);
+  background: rgba(255, 251, 243, 0.92);
+  color: var(--ink-strong);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .panelColumn {
+    order: 2;
+  }
+}
+
 .dock {
   display: flex;
   flex-wrap: wrap;
@@ -414,6 +494,20 @@
   color: var(--seal-red);
   font-size: 0.86rem;
   letter-spacing: 0.08em;
+}
+
+@keyframes panel-switch-bounce {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+
+  40% {
+    transform: translateY(-6px) scale(1.03);
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes poem-reveal {
@@ -544,6 +638,7 @@
   .spriteAnnoyed,
   .spriteHappy,
   .spritePoem,
+  .spritePanelBounce,
   .spriteSleeping,
   .bubbleHappy,
   .stagePoemAura,

@@ -10,7 +10,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
-import type { PetActionState, PetSpriteFrameSet } from "@/shared/contracts/home";
+import type { DesktopPetPanelId, PetActionState, PetSpriteFrameSet } from "@/shared/contracts/home";
 
 import styles from "./desktop-pet-hub.module.css";
 import { PetSpeechBubble } from "./pet-speech-bubble";
@@ -25,6 +25,11 @@ interface PetStageProps {
   displayName: string;
   title: string;
   speechText: string;
+  panelContext?: string;
+  panelAmbientId?: DesktopPetPanelId;
+  panelSwitchNonce?: number;
+  showDockHappy?: boolean;
+  showPanelHappyBurst?: boolean;
   actionState: PetActionState;
   frameSet: PetSpriteFrameSet;
   previewFallbackSrc: string;
@@ -38,12 +43,24 @@ interface PetStageProps {
   onPetPointerUp: () => void;
 }
 
+const STAGE_AMBIENT_CLASS: Record<DesktopPetPanelId, string> = {
+  profile: "stageAmbientProfile",
+  growth: "stageAmbientGrowth",
+  playground: "stageAmbientPlayground",
+  chat: "stageAmbientChat",
+};
+
 const SPRITE_SIZE = { width: 168, height: 168 };
 
 export function PetStage({
   displayName,
   title,
   speechText,
+  panelContext,
+  panelAmbientId,
+  panelSwitchNonce = 0,
+  showDockHappy = false,
+  showPanelHappyBurst = false,
   actionState,
   frameSet,
   previewFallbackSrc,
@@ -178,10 +195,17 @@ export function PetStage({
   };
 
   const isHappy = actionState === "happy";
+  const showHappyVisual =
+    isHappy && (showDockHappy || showPanelHappyBurst || Boolean(panelContext));
+  const showHappyBurst = (isHappy && showDockHappy) || showPanelHappyBurst;
+  const ambientClass = panelAmbientId
+    ? styles[STAGE_AMBIENT_CLASS[panelAmbientId] as keyof typeof styles]
+    : undefined;
   const stageClassName = [
     styles.stage,
+    ambientClass,
     isPoemReveal && styles.stagePoem,
-    isHappy && styles.stageHappy,
+    showHappyBurst && styles.stageHappy,
   ]
     .filter(Boolean)
     .join(" ");
@@ -204,7 +228,7 @@ export function PetStage({
         <span className={styles.stageGlow} />
         <span className={styles.stageRipple} />
         {isPoemReveal ? <span className={styles.stagePoemAura} aria-hidden="true" /> : null}
-        {isHappy ? <span className={styles.stageHappyBurst} aria-hidden="true" /> : null}
+        {showHappyBurst ? <span className={styles.stageHappyBurst} aria-hidden="true" /> : null}
       </div>
 
       <div
@@ -229,8 +253,10 @@ export function PetStage({
           <PetSpeechBubble
             speechText={speechText}
             displayName={displayName}
+            panelContext={panelContext}
             isPoemReveal={isPoemReveal}
             isSleeping={isSleeping}
+            showHappyAccent={showHappyBurst}
             isHappy={isHappy}
           />
         </div>
@@ -253,11 +279,13 @@ export function PetStage({
           onLostPointerCapture={finishDrag}
         >
           <PetSprite
-            key={`${actionState}-${frameSet.framePaths.join("|")}`}
+            key={`${actionState}-${panelSwitchNonce}-${frameSet.framePaths.join("|")}`}
             displayName={displayName}
             title={title}
             frameSet={frameSet}
             previewFallbackSrc={previewFallbackSrc}
+            panelSwitchNonce={panelSwitchNonce}
+            showDockHappy={showHappyVisual}
             actionState={actionState}
             isDragging={isDragging}
             prefersReducedMotion={prefersReducedMotion}
