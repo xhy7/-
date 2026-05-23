@@ -6,6 +6,7 @@ import { beforeEach, vi } from "vitest";
 
 import Page from "@/app/page";
 import { homePageData } from "@/mocks/home-data";
+import { resetTestMediaQueryState } from "@/test/setup";
 import suShiManifest from "../../public/pets/su-shi/manifest.json";
 
 vi.mock("next/image", () => ({
@@ -56,25 +57,11 @@ class ResizeObserverMock {
   disconnect() {}
 }
 
-function mockMatchMedia() {
-  Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
-  });
-}
-
 describe("home page assembly", () => {
   beforeEach(() => {
     sessionStorage.clear();
     vi.stubGlobal("ResizeObserver", ResizeObserverMock);
-    mockMatchMedia();
+    resetTestMediaQueryState();
   });
 
   it("renders the homepage as a route hub instead of the full feature stack", async () => {

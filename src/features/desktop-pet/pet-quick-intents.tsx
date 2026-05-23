@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 
 import type {
   DesktopPetPanelId,
@@ -17,17 +17,20 @@ interface PetQuickIntentsProps {
   onSelectIntent: (intent: DesktopPetQuickIntent) => void;
 }
 
-function readPulsePanelId(defaultPanelId: DesktopPetPanelId): DesktopPetPanelId | null {
+const PULSE_SESSION_KEY = "desktop-pet-intent-pulse";
+
+function readInitialPulsePanelId(
+  defaultPanelId: DesktopPetPanelId,
+): DesktopPetPanelId | null {
   if (typeof window === "undefined") {
     return null;
   }
 
-  const pulseKey = "desktop-pet-intent-pulse";
-  if (window.sessionStorage.getItem(pulseKey) === "1") {
+  if (window.sessionStorage.getItem(PULSE_SESSION_KEY) === "1") {
     return null;
   }
 
-  window.sessionStorage.setItem(pulseKey, "1");
+  window.sessionStorage.setItem(PULSE_SESSION_KEY, "1");
   return defaultPanelId;
 }
 
@@ -38,10 +41,7 @@ export function PetQuickIntents({
   disabled = false,
   onSelectIntent,
 }: PetQuickIntentsProps) {
-  const pulsePanelId = useMemo(
-    () => readPulsePanelId(defaultPanelId),
-    [defaultPanelId],
-  );
+  const [pulsePanelId] = useState(() => readInitialPulsePanelId(defaultPanelId));
 
   return (
     <div className={styles.quickIntentRow} aria-label="桌宠快捷意图">

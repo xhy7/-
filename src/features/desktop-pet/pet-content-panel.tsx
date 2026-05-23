@@ -116,6 +116,7 @@ export function PetContentPanel({
                 .filter(Boolean)
                 .join(" ")}
               onFocus={() => onActionPreview(action.actionState)}
+              onPointerEnter={() => onActionPreview(action.actionState)}
             >
               <div className={styles.actionHeader}>
                 <span className={styles.actionLabel}>{action.label}</span>

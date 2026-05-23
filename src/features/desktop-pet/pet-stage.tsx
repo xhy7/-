@@ -29,6 +29,7 @@ interface PetStageProps {
   panelAmbientId?: DesktopPetPanelId;
   panelSwitchNonce?: number;
   showDockHappy?: boolean;
+  showPanelHappyBurst?: boolean;
   actionState: PetActionState;
   frameSet: PetSpriteFrameSet;
   previewFallbackSrc: string;
@@ -59,6 +60,7 @@ export function PetStage({
   panelAmbientId,
   panelSwitchNonce = 0,
   showDockHappy = false,
+  showPanelHappyBurst = false,
   actionState,
   frameSet,
   previewFallbackSrc,
@@ -193,7 +195,9 @@ export function PetStage({
   };
 
   const isHappy = actionState === "happy";
-  const showHappyBurst = isHappy && showDockHappy;
+  const showHappyVisual =
+    isHappy && (showDockHappy || showPanelHappyBurst || Boolean(panelContext));
+  const showHappyBurst = (isHappy && showDockHappy) || showPanelHappyBurst;
   const ambientClass = panelAmbientId
     ? styles[STAGE_AMBIENT_CLASS[panelAmbientId] as keyof typeof styles]
     : undefined;
@@ -281,7 +285,7 @@ export function PetStage({
             frameSet={frameSet}
             previewFallbackSrc={previewFallbackSrc}
             panelSwitchNonce={panelSwitchNonce}
-            showDockHappy={showDockHappy}
+            showDockHappy={showHappyVisual}
             actionState={actionState}
             isDragging={isDragging}
             prefersReducedMotion={prefersReducedMotion}

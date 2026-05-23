@@ -48,6 +48,7 @@ export interface OpenPanelOptions {
   speechOverride?: string;
   force?: boolean;
   silent?: boolean;
+  actionState?: PetActionState;
 }
 
 export interface UsePetControllerOptions {
@@ -63,6 +64,7 @@ export interface UsePetControllerResult {
   speechText: string;
   speechContextLabel?: string;
   isPoemReveal: boolean;
+  showPanelHappyBurst: boolean;
   panelSwitchNonce: number;
   dragOffset: { x: number; y: number };
   setDragOffset: (offset: { x: number; y: number }) => void;
@@ -106,8 +108,10 @@ export function usePetController({
   const [isStageFading, setIsStageFading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [panelSwitchNonce, setPanelSwitchNonce] = useState(0);
+  const [showPanelHappyBurst, setShowPanelHappyBurst] = useState(false);
 
   const resetTimerRef = useRef<number | null>(null);
+  const panelHappyBurstTimerRef = useRef<number | null>(null);
   const idlePromptTimerRef = useRef<number | null>(null);
   const sleepTimerRef = useRef<number | null>(null);
   const switchFadeTimerRef = useRef<number | null>(null);
@@ -164,6 +168,18 @@ export function usePetController({
     if (panelId !== activePanelIdRef.current) {
       setPanelSwitchNonce((current) => current + 1);
     }
+  }, []);
+
+  const bumpPanelHappyBurst = useCallback(() => {
+    if (panelHappyBurstTimerRef.current !== null) {
+      window.clearTimeout(panelHappyBurstTimerRef.current);
+    }
+
+    setShowPanelHappyBurst(true);
+    panelHappyBurstTimerRef.current = window.setTimeout(() => {
+      panelHappyBurstTimerRef.current = null;
+      setShowPanelHappyBurst(false);
+    }, 600);
   }, []);
 
   const applySpeech = useCallback(
@@ -232,10 +248,15 @@ export function usePetController({
       const isSamePanel =
         panelId === activePanelIdRef.current && !options?.force;
 
-      if (isSamePanel && !options?.silent) {
-        markInteraction();
-        syncPanelSpeech(panelId);
-        return;
+      if (isSamePanel && !options?.force) {
+        const hasIntentOverride =
+          Boolean(options?.speechOverride) || Boolean(options?.actionState);
+
+        if (!hasIntentOverride) {
+          markInteraction();
+          syncPanelSpeech(panelId);
+          return;
+        }
       }
 
       markInteraction();
@@ -262,17 +283,31 @@ export function usePetController({
         return;
       }
 
-      const nextAction = resolvePanelActionState(panelItem);
+      const nextAction =
+        options?.actionState ?? resolvePanelActionState(panelItem);
       const nextSpeech = options?.speechOverride ?? panelItem.summary;
       triggerAction(nextAction, nextSpeech);
       setSpeechContextLabel(PANEL_SPEECH_CONTEXT[panelId]);
+      if (nextAction === "happy") {
+        bumpPanelHappyBurst();
+      }
     },
-    [bumpPanelSwitch, config, markInteraction, syncPanelSpeech, triggerAction],
+    [
+      bumpPanelHappyBurst,
+      bumpPanelSwitch,
+      config,
+      markInteraction,
+      syncPanelSpeech,
+      triggerAction,
+    ],
   );
 
   const handleQuickIntent = useCallback(
     (intent: DesktopPetQuickIntent) => {
-      openPanel(intent.panelId, { speechOverride: intent.prompt });
+      openPanel(intent.panelId, {
+        speechOverride: intent.prompt,
+        actionState: intent.actionState,
+      });
     },
     [openPanel],
   );
@@ -464,6 +499,9 @@ export function usePetController({
       if (switchFadeTimerRef.current !== null) {
         window.clearTimeout(switchFadeTimerRef.current);
       }
+      if (panelHappyBurstTimerRef.current !== null) {
+        window.clearTimeout(panelHappyBurstTimerRef.current);
+      }
     };
   }, [clearResetTimer]);
 
@@ -476,6 +514,7 @@ export function usePetController({
     speechText,
     speechContextLabel,
     isPoemReveal,
+    showPanelHappyBurst,
     panelSwitchNonce,
     dragOffset,
     setDragOffset,

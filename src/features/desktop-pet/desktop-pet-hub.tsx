@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useSyncExternalStore, useState } from "react";
 
 import type { DesktopPetConfig, DesktopPetPanelId } from "@/shared/contracts/home";
 import { SectionHeading, TagPill } from "@/shared/ui/primitives";
@@ -17,6 +17,7 @@ import { usePetController } from "./use-pet-controller";
 
 export interface DesktopPetHubProps {
   config: DesktopPetConfig;
+  layoutMode?: "mobile" | "desktop";
 }
 
 const PANEL_SHELL_CLASS: Record<DesktopPetPanelId, string> = {
@@ -26,9 +27,31 @@ const PANEL_SHELL_CLASS: Record<DesktopPetPanelId, string> = {
   chat: panelStyles.panelShellChat,
 };
 
-export function DesktopPetHub({ config }: DesktopPetHubProps) {
+const MOBILE_MEDIA_QUERY = "(max-width: 900px)";
+
+function subscribeMobileLayout(onStoreChange: () => void) {
+  const media = window.matchMedia(MOBILE_MEDIA_QUERY);
+  media.addEventListener("change", onStoreChange);
+  return () => media.removeEventListener("change", onStoreChange);
+}
+
+function getMobileLayoutSnapshot() {
+  return window.matchMedia(MOBILE_MEDIA_QUERY).matches;
+}
+
+function getMobileLayoutServerSnapshot() {
+  return false;
+}
+
+export function DesktopPetHub({ config, layoutMode }: DesktopPetHubProps) {
   const panelTitleRef = useRef<HTMLHeadingElement>(null);
-  const [isMobileLayout, setIsMobileLayout] = useState(false);
+  const detectedMobileLayout = useSyncExternalStore(
+    subscribeMobileLayout,
+    getMobileLayoutSnapshot,
+    getMobileLayoutServerSnapshot,
+  );
+  const isMobileLayout =
+    layoutMode !== undefined ? layoutMode === "mobile" : detectedMobileLayout;
   const [isPanelExpanded, setIsPanelExpanded] = useState(true);
 
   const {
@@ -41,6 +64,7 @@ export function DesktopPetHub({ config }: DesktopPetHubProps) {
     speechContextLabel,
     isPoemReveal,
     panelSwitchNonce,
+    showPanelHappyBurst,
     dragOffset,
     setDragOffset,
     selectAncestor,
@@ -56,14 +80,6 @@ export function DesktopPetHub({ config }: DesktopPetHubProps) {
     isStageFading,
     isDragging,
   } = usePetController({ config });
-
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 900px)");
-    const update = () => setIsMobileLayout(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
 
   const focusPanelTitle = useCallback(() => {
     window.requestAnimationFrame(() => {
@@ -145,6 +161,7 @@ export function DesktopPetHub({ config }: DesktopPetHubProps) {
             panelAmbientId={activePanelId}
             panelSwitchNonce={panelSwitchNonce}
             showDockHappy={showDockHappy}
+            showPanelHappyBurst={showPanelHappyBurst}
             actionState={actionState}
             frameSet={frameSet}
             previewFallbackSrc={activeCharacter.assetManifest.previewImageSrc}
@@ -205,7 +222,7 @@ export function DesktopPetHub({ config }: DesktopPetHubProps) {
               onPanelTitleFocus={focusPanelTitle}
             />
             <div
-              id={`pet-panel-${activePanelId}`}
+              id="pet-panel-active"
               role="tabpanel"
               aria-labelledby={`pet-panel-tab-${activePanelId}`}
               className={panelStyles.tabPanel}
