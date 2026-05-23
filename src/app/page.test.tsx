@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, vi } from "vitest";
 
 import Page from "@/app/page";
@@ -95,6 +96,7 @@ describe("home page assembly", () => {
   });
 
   it("mounts the desktop pet hub with the home desktop pet config", async () => {
+    const user = userEvent.setup();
     const page = await Page();
 
     render(page);
@@ -105,11 +107,17 @@ describe("home page assembly", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "苏轼" })).toBeInTheDocument();
     const desktopPetNavigation = screen.getByRole("navigation", {
-      name: "桌宠网页入口",
+      name: "桌宠快捷入口",
     });
     expect(desktopPetNavigation).toBeInTheDocument();
     expect(
-      within(desktopPetNavigation).getByRole("link", { name: /玩法工坊/ }),
+      within(desktopPetNavigation).getByRole("button", { name: /玩法工坊/ }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("tab", { name: "玩法工坊" }));
+
+    expect(
+      screen.getByRole("link", { name: "展开玩法工坊" }),
     ).toHaveAttribute("href", "/playground?ancestorId=su-shi&source=pet");
   });
 

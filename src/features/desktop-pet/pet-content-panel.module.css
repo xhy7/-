@@ -1,0 +1,481 @@
+.panelShell {
+  display: flex;
+  flex-direction: column;
+  min-height: clamp(320px, 48vw, 420px);
+  border-radius: 24px;
+  border: 1px solid rgba(117, 61, 34, 0.16);
+  background:
+    linear-gradient(160deg, rgba(255, 251, 243, 0.98), rgba(247, 236, 214, 0.94)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(117, 61, 34, 0.02) 0,
+      rgba(117, 61, 34, 0.02) 1px,
+      transparent 1px,
+      transparent 24px
+    );
+  box-shadow:
+    inset 4px 0 0 rgba(155, 45, 36, 0.42),
+    0 18px 40px rgba(77, 50, 30, 0.1);
+  overflow: hidden;
+  transition:
+    max-height 260ms ease,
+    opacity 220ms ease,
+    transform 220ms ease;
+}
+
+.panelShellProfile {
+  background:
+    linear-gradient(160deg, rgba(255, 251, 243, 0.98), rgba(247, 236, 214, 0.94)),
+    radial-gradient(circle at 88% 12%, rgba(176, 138, 64, 0.12), transparent 42%);
+}
+
+.panelShellGrowth {
+  background:
+    linear-gradient(160deg, rgba(255, 251, 243, 0.98), rgba(247, 236, 214, 0.94)),
+    radial-gradient(circle at 88% 12%, rgba(255, 214, 140, 0.16), transparent 44%);
+}
+
+.panelShellPlayground {
+  background:
+    linear-gradient(160deg, rgba(255, 251, 243, 0.98), rgba(247, 236, 214, 0.94)),
+    radial-gradient(circle at 88% 12%, rgba(155, 45, 36, 0.1), transparent 44%);
+}
+
+.panelShellChat {
+  background:
+    linear-gradient(160deg, rgba(255, 251, 243, 0.98), rgba(247, 236, 214, 0.94)),
+    radial-gradient(circle at 88% 12%, rgba(88, 58, 36, 0.1), transparent 44%);
+}
+
+.panelShellCollapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  border-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 22px 22px;
+  animation: panel-enter 160ms ease-out both;
+}
+
+.panelBodyReduced {
+  animation: none;
+}
+
+.panelHeader {
+  display: grid;
+  gap: 8px;
+}
+
+.panelEyebrow {
+  margin: 0;
+  color: var(--seal-red);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+}
+
+.panelTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+  letter-spacing: 0.06em;
+  color: var(--ink-strong);
+}
+
+.panelSummary {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.94rem;
+  line-height: 1.75;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.metricCard {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(117, 61, 34, 0.12);
+  animation: panel-enter 160ms ease-out both;
+}
+
+.metricCardInk {
+  background: rgba(88, 58, 36, 0.06);
+  border-color: rgba(88, 58, 36, 0.16);
+}
+
+.metricCardSeal {
+  background: rgba(155, 45, 36, 0.06);
+  border-color: rgba(155, 45, 36, 0.18);
+}
+
+.metricCardMuted {
+  background: rgba(117, 61, 34, 0.04);
+  border-color: rgba(117, 61, 34, 0.1);
+}
+
+.metricLabel {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+}
+
+.metricValue {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--ink-strong);
+}
+
+.metricNote {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+.actionList {
+  display: grid;
+  gap: 10px;
+}
+
+.actionTile {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(117, 61, 34, 0.14);
+  background: rgba(255, 250, 242, 0.88);
+  text-align: left;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.actionTile:hover,
+.actionTile:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(155, 45, 36, 0.32);
+  box-shadow: 0 12px 24px rgba(106, 52, 32, 0.12);
+}
+
+.actionTileLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.actionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.actionLabel {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--ink-strong);
+}
+
+.actionBadge {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(155, 45, 36, 0.1);
+  color: var(--seal-red);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.actionDescription {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.actionArrow {
+  color: var(--seal-red);
+  font-size: 0.84rem;
+  transition: transform 180ms ease;
+}
+
+.actionTile:hover .actionArrow,
+.actionTile:focus-visible .actionArrow {
+  transform: translateX(4px);
+}
+
+.primaryCtaRow {
+  display: flex;
+  justify-content: stretch;
+  margin-top: 4px;
+}
+
+.primaryCta {
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+}
+
+.primaryCtaArrow {
+  transition: transform 180ms ease;
+}
+
+.primaryCta:hover .primaryCtaArrow,
+.primaryCta:focus-visible .primaryCtaArrow {
+  transform: translateX(4px);
+}
+
+.tabList {
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.tabButton {
+  position: relative;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 999px 999px 0 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    background 180ms ease;
+}
+
+.tabButton:hover,
+.tabButton:focus-visible {
+  color: var(--ink-strong);
+  background: rgba(255, 250, 242, 0.72);
+}
+
+.tabButtonActive {
+  color: var(--ink-strong);
+  font-weight: 600;
+}
+
+.tabIndicator {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--seal-red);
+  transform: scaleX(0);
+  transition: transform 220ms ease;
+}
+
+.tabButtonActive .tabIndicator {
+  transform: scaleX(1);
+}
+
+.tabPanel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-color: rgba(117, 61, 34, 0.35) transparent;
+}
+
+.tabPanel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tabPanel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(117, 61, 34, 0.35);
+}
+
+.quickIntentRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quickIntentChip {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(117, 61, 34, 0.16);
+  background: rgba(255, 251, 243, 0.82);
+  color: var(--ink-strong);
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.quickIntentChip:hover,
+.quickIntentChip:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(155, 45, 36, 0.28);
+  box-shadow: 0 8px 18px rgba(106, 52, 32, 0.1);
+}
+
+.quickIntentChipActive {
+  border-color: rgba(155, 45, 36, 0.42);
+  box-shadow: 0 0 0 1px rgba(155, 45, 36, 0.12);
+}
+
+.quickIntentPulse {
+  animation: intent-pulse 1.2s ease-out 1;
+}
+
+.entranceMenuCompact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (min-width: 901px) {
+  .entranceMenuCompact {
+    opacity: 0.9;
+  }
+
+  .entranceMenuCompact .entrancePill {
+    min-height: 34px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+  }
+}
+
+.panelMobileToggle {
+  display: none;
+  width: 100%;
+  min-height: 42px;
+  margin-bottom: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(117, 61, 34, 0.16);
+  background: rgba(255, 251, 243, 0.92);
+  color: var(--ink-strong);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.panelMobileToggle:hover,
+.panelMobileToggle:focus-visible {
+  border-color: rgba(155, 45, 36, 0.28);
+  box-shadow: 0 8px 18px rgba(106, 52, 32, 0.1);
+}
+
+.entranceHint {
+  margin: 0 0 8px;
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.entrancePill {
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(117, 61, 34, 0.16);
+  background: rgba(255, 250, 242, 0.82);
+  color: var(--ink-strong);
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
+}
+
+.entrancePill:hover,
+.entrancePill:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(155, 45, 36, 0.28);
+  box-shadow: 0 8px 16px rgba(106, 52, 32, 0.1);
+}
+
+.entrancePillActive {
+  background: linear-gradient(135deg, rgba(106, 52, 32, 0.92), rgba(155, 45, 36, 0.88));
+  color: #fff9f3;
+  border-color: transparent;
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes intent-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(155, 45, 36, 0.28);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(155, 45, 36, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(155, 45, 36, 0);
+  }
+}
+
+@media (max-width: 900px) {
+  .panelMobileToggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .tabList {
+    padding-bottom: 4px;
+  }
+
+  .panelBody {
+    padding: 16px 16px 18px;
+  }
+
+  .panelShellCollapsed {
+    max-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panelBody,
+  .metricCard,
+  .quickIntentPulse,
+  .actionTile,
+  .quickIntentChip,
+  .entrancePill,
+  .tabIndicator {
+    animation: none;
+    transition: none;
+  }
+}

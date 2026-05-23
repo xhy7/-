@@ -1,10 +1,74 @@
 import type {
   DesktopPetCharacter,
   DesktopPetConfig,
+  DesktopPetPanelId,
+  DesktopPetPanelItem,
   PetActionState,
   PetAssetManifest,
+  PetEntranceId,
   PetSpriteFrameSet,
 } from "@/shared/contracts/home";
+
+const ENTRANCE_TO_PANEL: Record<PetEntranceId, DesktopPetPanelId> = {
+  ancestors: "profile",
+  growth: "growth",
+  playground: "playground",
+  chat: "chat",
+};
+
+export const PANEL_SPEECH_CONTEXT: Record<DesktopPetPanelId, string> = {
+  profile: "档案",
+  growth: "养成",
+  playground: "玩法",
+  chat: "对话",
+};
+
+const MODE_ID_LABELS: Record<string, string> = {
+  "cross-time-quarrel": "吵架",
+  "truth-or-dare": "真心话",
+  "fusion-creation": "创作",
+  "modern-reframe": "现代命题",
+};
+
+const SCENE_TYPE_LABELS: Record<string, string> = {
+  "daily-chat": "日常",
+  "conflict-mediation": "拉架",
+  "creative-feedback": "作品互评",
+  "event-reaction": "事件反应",
+};
+
+export function resolvePanelByEntranceId(
+  entranceId: PetEntranceId,
+): DesktopPetPanelId {
+  return ENTRANCE_TO_PANEL[entranceId];
+}
+
+export function getPanelItem(
+  config: DesktopPetConfig,
+  panelId: DesktopPetPanelId,
+): DesktopPetPanelItem | undefined {
+  return config.panelItems.find((panel) => panel.id === panelId);
+}
+
+export function resolvePanelActionState(
+  panelItem: DesktopPetPanelItem,
+): PetActionState {
+  return panelItem.actionState;
+}
+
+export function getModeIdLabel(modeId?: string): string | undefined {
+  if (!modeId) {
+    return undefined;
+  }
+  return MODE_ID_LABELS[modeId] ?? modeId;
+}
+
+export function getSceneTypeLabel(sceneType?: string): string | undefined {
+  if (!sceneType) {
+    return undefined;
+  }
+  return SCENE_TYPE_LABELS[sceneType] ?? sceneType;
+}
 
 export const USER_TRIGGERED_ACTIONS: PetActionState[] = [
   "talk",
@@ -98,15 +162,16 @@ export function getDefaultStageOffset(bounds: {
 }): { x: number; y: number } {
   const spriteWidth = 168;
   const spriteHeight = 168;
+  const anchorX = bounds.width < 520 ? 0.5 : 0.44;
   return {
-    x: Math.max(24, bounds.width * 0.58 - spriteWidth / 2),
+    x: Math.max(24, bounds.width * anchorX - spriteWidth / 2),
     y: Math.max(24, bounds.height * 0.42 - spriteHeight / 2),
   };
 }
 
 const SPRITE_WIDTH = 168;
 const BUBBLE_ESTIMATED_WIDTH = 280;
-const BUBBLE_TOP_SAFE_ZONE = 108;
+const BUBBLE_TOP_SAFE_ZONE = 96;
 
 export type BubblePlacement = "above" | "below";
 
@@ -131,7 +196,9 @@ export function getBubbleFollowLayout(
   }
 
   const placement: BubblePlacement =
-    dragOffset.y < BUBBLE_TOP_SAFE_ZONE ? "below" : "above";
+    dragOffset.y < BUBBLE_TOP_SAFE_ZONE || stageBounds.height < 360
+      ? "below"
+      : "above";
 
   return { placement, shiftX };
 }
