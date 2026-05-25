@@ -4,6 +4,10 @@ import { afterEach, beforeEach, vi } from "vitest";
 
 import { homePageData } from "@/mocks/home-data";
 import { HomePlaygroundSection } from "@/features/home-playground/home-playground-section";
+import {
+  buildPetPlaygroundHref,
+  PetPlaygroundEntry,
+} from "@/features/home-playground/pet-playground-entry";
 
 describe("HomePlaygroundSection", () => {
   beforeEach(() => {
@@ -256,5 +260,47 @@ describe("HomePlaygroundSection", () => {
       screen.getByText("你这首倒像提灯登楼，声势先到了，险处还欠一脚踏空的狠劲。"),
     ).toBeInTheDocument();
     expect(screen.getByText("把最想被记住的一句再改得更险一些。")).toBeInTheDocument();
+  });
+
+  it("exposes a reusable desktop pet playground entry for Su Shi", async () => {
+    const user = userEvent.setup();
+    const onSelectIntent = vi.fn();
+
+    render(
+      <PetPlaygroundEntry
+        ancestorId="su-shi"
+        ancestorName="苏轼"
+        gameplayModes={homePageData.gameplayModes}
+        selectedIntentId="poem"
+        onSelectIntent={onSelectIntent}
+      />,
+    );
+
+    expect(screen.getByText("苏轼的玩法工坊")).toBeInTheDocument();
+    expect(screen.getByText("source=pet")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^吵架/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^拉架/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^吟诗/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^创作/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^现代命题/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "展开完整玩法页面" })).toHaveAttribute(
+      "href",
+      "/playground?ancestorId=su-shi&source=pet",
+    );
+
+    await user.click(screen.getByRole("button", { name: /^现代命题/ }));
+
+    expect(onSelectIntent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: "modern-topic",
+        modeId: "modern-reframe",
+      }),
+    );
+  });
+
+  it("builds desktop pet playground links with optional mode context", () => {
+    expect(buildPetPlaygroundHref("modern-reframe", "su-shi")).toBe(
+      "/playground?ancestorId=su-shi&source=pet&mode=modern-reframe",
+    );
   });
 });
