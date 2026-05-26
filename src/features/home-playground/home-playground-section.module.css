@@ -456,6 +456,98 @@
   gap: 10px;
 }
 
+.petEntry {
+  display: grid;
+  gap: 16px;
+}
+
+.petEntryHeader,
+.petEntryActions {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+.petEntryTitle,
+.petEntryLead,
+.petEntryMeta {
+  margin: 0;
+}
+
+.petEntryTitle {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+}
+
+.petEntryLead,
+.petEntryMeta {
+  color: var(--ink-soft);
+  line-height: 1.7;
+}
+
+.petIntentGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.petIntentButton {
+  display: grid;
+  gap: 8px;
+  min-height: 142px;
+  padding: 14px;
+  border: 1px solid rgba(88, 58, 36, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 253, 248, 0.9);
+  color: var(--ink-strong);
+  font: inherit;
+  text-align: left;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.petIntentButton:hover,
+.petIntentButton[data-active="true"] {
+  border-color: rgba(155, 45, 36, 0.3);
+  box-shadow: 0 10px 22px rgba(77, 50, 30, 0.12);
+  transform: translateY(-1px);
+}
+
+.petIntentButton[data-active="true"] {
+  background: linear-gradient(135deg, rgba(155, 45, 36, 0.1), rgba(255, 253, 248, 0.94));
+}
+
+.petIntentLabel {
+  color: var(--seal-red);
+  font-weight: 800;
+}
+
+.petIntentSummary,
+.petIntentMeta {
+  line-height: 1.65;
+}
+
+.petIntentMeta {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+.petEntryLink {
+  display: inline-flex;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid rgba(155, 45, 36, 0.24);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.82);
+  color: var(--seal-red);
+  font-weight: 700;
+  text-decoration: none;
+  align-items: center;
+}
+
 .quarrelTimeline {
   display: grid;
   gap: 12px;
@@ -518,7 +610,8 @@
   }
 
   .studioGrid,
-  .creationList {
+  .creationList,
+  .petIntentGrid {
     grid-template-columns: 1fr;
   }
 }
@@ -531,7 +624,9 @@
   .modeHeader,
   .reviewHeader,
   .creationMeta,
-  .creationHeader {
+  .creationHeader,
+  .petEntryHeader,
+  .petEntryActions {
     flex-direction: column;
     align-items: start;
   }

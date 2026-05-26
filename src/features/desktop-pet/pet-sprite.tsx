@@ -15,6 +15,8 @@ interface PetSpriteProps {
   actionState: string;
   isDragging: boolean;
   prefersReducedMotion: boolean;
+  panelSwitchNonce?: number;
+  showDockHappy?: boolean;
 }
 
 export function PetSprite({
@@ -25,6 +27,8 @@ export function PetSprite({
   actionState,
   isDragging,
   prefersReducedMotion,
+  panelSwitchNonce = 0,
+  showDockHappy = false,
 }: PetSpriteProps) {
   const [frameIndex, setFrameIndex] = useState(0);
   const [brokenFrames, setBrokenFrames] = useState<Record<string, true>>({});
@@ -37,6 +41,8 @@ export function PetSprite({
   const frameSignature = frames.join("|");
   const activeSrc = frames[frameIndex] ?? previewFallbackSrc;
   const showGlyphFallback = brokenFrames[activeSrc] === true;
+  const shouldPanelBounce =
+    panelSwitchNonce > 0 && !prefersReducedMotion;
 
   useEffect(() => {
     if (prefersReducedMotion || frames.length <= 1) {
@@ -69,8 +75,9 @@ export function PetSprite({
         isDragging && styles.spriteDragging,
         actionState === "sleep" && styles.spriteSleeping,
         actionState === "annoyed" && styles.spriteAnnoyed,
-        actionState === "happy" && styles.spriteHappy,
+        showDockHappy && styles.spriteHappy,
         actionState === "poem" && styles.spritePoem,
+        shouldPanelBounce && styles.spritePanelBounce,
       ]
         .filter(Boolean)
         .join(" ")}
@@ -101,7 +108,7 @@ export function PetSprite({
       <span
         className={[
           styles.spriteHalo,
-          actionState === "happy" && styles.spriteHaloHappy,
+          showDockHappy && styles.spriteHaloHappy,
           actionState === "poem" && styles.spriteHaloPoem,
         ]
           .filter(Boolean)

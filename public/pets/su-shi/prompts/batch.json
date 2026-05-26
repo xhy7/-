@@ -1,0 +1,61 @@
+{
+  "jobs": 4,
+  "tasks": [
+    {
+      "id": "idle",
+      "promptFiles": ["idle.md"],
+      "image": "../idle/idle-01.png",
+      "ref": ["../../sushi-ref.png"],
+      "ar": "1:1"
+    },
+    {
+      "id": "greet",
+      "promptFiles": ["greet.md"],
+      "image": "../greet/greet-01.png",
+      "ref": ["../../sushi-ref.png"],
+      "ar": "1:1"
+    },
+    {
+      "id": "talk",
+      "promptFiles": ["talk.md"],
+      "image": "../talk/talk-01.png",
+      "ref": ["../../sushi-ref.png"],
+      "ar": "1:1"
+    },
+    {
+      "id": "poem",
+      "promptFiles": ["poem.md"],
+      "image": "../poem/poem-01.png",
+      "ref": ["../../sushi-ref.png"],
+      "ar": "1:1"
+    },
+    {
+      "id": "dragging",
+      "promptFiles": ["dragging.md"],
+      "image": "../dragging/dragging-01.png",
+      "ref": ["../../sushi-ref.png"],
+      "ar": "1:1"
+    },
+    {
+      "id": "happy",
+      "promptFiles": ["happy.md"],
+      "image": "../happy/happy-01.png",
+      "ref": ["../../sushi-ref.png"],
+      "ar": "1:1"
+    },
+    {
+      "id": "annoyed",
+      "promptFiles": ["annoyed.md"],
+      "image": "../annoyed/annoyed-01.png",
+      "ref": ["../../sushi-ref.png"],
+      "ar": "1:1"
+    },
+    {
+      "id": "sleep",
+      "promptFiles": ["sleep.md"],
+      "image": "../sleep/sleep-01.png",
+      "ref": ["../../sushi-ref.png"],
+      "ar": "1:1"
+    }
+  ]
+}

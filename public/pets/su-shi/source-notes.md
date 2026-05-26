@@ -20,14 +20,14 @@
 
 | 状态 | 目录 | 帧数 | 循环 | 描述 |
 |------|------|------|------|------|
-| idle | `idle/` | 4 | 是 | 待机呼吸，轻微上下浮动 |
-| greet | `greet/` | 3 | 否 | 挥手打招呼，播完切回 idle |
-| talk | `talk/` | 3 | 是 | 嘴巴张合，说话中 |
-| poem | `poem/` | 4 | 否 | 仰头吟诗，播完切回 idle |
-| dragging | `dragging/` | 2 | 是 | 被拖拽时惊慌表情 |
-| happy | `happy/` | 3 | 否 | 开心蹦跳，播完切回 idle |
-| annoyed | `annoyed/` | 3 | 否 | 撇嘴/翻白眼，播完切回 idle |
-| sleep | `sleep/` | 2 | 是 | 闭眼打呼噜 |
+| idle | `idle/` | 6 | 是 | 待机呼吸，轻微上下浮动 |
+| greet | `greet/` | 6 | 否 | 挥手打招呼，播完切回 idle |
+| talk | `talk/` | 6 | 是 | 嘴巴张合，说话中 |
+| poem | `poem/` | 6 | 否 | 仰头吟诗，播完切回 idle |
+| dragging | `dragging/` | 6 | 是 | 被拖拽时惊慌表情 |
+| happy | `happy/` | 6 | 否 | 开心蹦跳，播完切回 idle |
+| annoyed | `annoyed/` | 6 | 否 | 撇嘴/翻白眼，播完切回 idle |
+| sleep | `sleep/` | 6 | 是 | 闭眼打呼噜 |
 
 ### 苏轼角色特征要点
 - 头戴乌纱帽或东坡巾（标志性帽子）
@@ -44,37 +44,21 @@ public/pets/su-shi/
 ├── preview.png            # 角色预览图（静态）
 ├── source-notes.md        # 本文件
 ├── idle/
-│   ├── idle-01.png
-│   ├── idle-02.png
-│   ├── idle-03.png
-│   └── idle-04.png
+│   ├── idle-01.png ~ idle-06.png
 ├── greet/
-│   ├── greet-01.png
-│   ├── greet-02.png
-│   └── greet-03.png
+│   ├── greet-01.png ~ greet-06.png
 ├── talk/
-│   ├── talk-01.png
-│   ├── talk-02.png
-│   └── talk-03.png
+│   ├── talk-01.png ~ talk-06.png
 ├── poem/
-│   ├── poem-01.png
-│   ├── poem-02.png
-│   ├── poem-03.png
-│   └── poem-04.png
+│   ├── poem-01.png ~ poem-06.png
 ├── dragging/
-│   ├── dragging-01.png
-│   └── dragging-02.png
+│   ├── dragging-01.png ~ dragging-06.png
 ├── happy/
-│   ├── happy-01.png
-│   ├── happy-02.png
-│   └── happy-03.png
+│   ├── happy-01.png ~ happy-06.png
 ├── annoyed/
-│   ├── annoyed-01.png
-│   ├── annoyed-02.png
-│   └── annoyed-03.png
+│   ├── annoyed-01.png ~ annoyed-06.png
 └── sleep/
-    ├── sleep-01.png
-    └── sleep-02.png
+    ├── sleep-01.png ~ sleep-06.png
 ```
 
 ## QA 检查清单
