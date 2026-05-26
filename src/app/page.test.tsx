@@ -77,16 +77,19 @@ describe("home page assembly", () => {
     ).not.toBeInTheDocument();
     expect(screen.getByLabelText("苏轼桌宠主界面")).toBeInTheDocument();
     expect(
-      within(
-        screen.getByRole("complementary", { name: "桌宠内容面板" }),
-      ).getByRole("heading", { name: "先在苏轼旁边轻量使用" }),
+      screen.getByRole("tab", { name: "人物档案" }),
     ).toBeInTheDocument();
     expect(
       within(screen.getByRole("navigation", { name: "展开完整页面" })).getByText(
         "养成中枢",
       ),
     ).toBeInTheDocument();
-    const header = screen.getByRole("banner");
+    const header = screen
+      .getByRole("heading", { name: "老祖宗养成计划" })
+      .closest("header");
+    if (!header) {
+      throw new Error("Expected homepage header to render");
+    }
     expect(within(header).getByText("桌宠主角")).toBeInTheDocument();
     expect(within(header).getByText("苏轼 · 东坡居士")).toBeInTheDocument();
   });
@@ -113,7 +116,9 @@ describe("home page assembly", () => {
     await user.click(screen.getByRole("tab", { name: "玩法工坊" }));
 
     expect(
-      screen.getByRole("link", { name: "展开玩法工坊" }),
+      within(screen.getByRole("tabpanel")).getByRole("link", {
+        name: /展开玩法工坊/,
+      }),
     ).toHaveAttribute("href", "/playground?ancestorId=su-shi&source=pet");
   });
 
@@ -137,24 +142,30 @@ describe("home page assembly", () => {
     expect(within(navigation).getByText("玩法入口")).toBeInTheDocument();
   });
 
-  it("renders desktop pet content panel previews with full page links", async () => {
+  it("renders desktop pet content panels with full page links", async () => {
     const page = await Page();
 
     render(page);
 
-    const panelRegion = screen.getByRole("complementary", {
-      name: "桌宠内容面板",
-    });
+    const panelRegion = screen.getByRole("tabpanel");
 
     expect(within(panelRegion).getByText("苏轼 · 东坡居士")).toBeInTheDocument();
-    expect(within(panelRegion).getByText("微醺灵感 · 知己未满")).toBeInTheDocument();
+    expect(
+      within(panelRegion).getByRole("link", { name: /展开人物档案/ }),
+    ).toHaveAttribute("href", "/ancestors");
+
+    await userEvent.click(screen.getByRole("tab", { name: "玩法工坊" }));
+
     expect(within(panelRegion).getByText("带着苏轼开一局")).toBeInTheDocument();
+    expect(
+      within(panelRegion).getByRole("link", { name: /展开玩法工坊/ }),
+    ).toHaveAttribute("href", "/playground?ancestorId=su-shi&source=pet");
+
+    await userEvent.click(screen.getByRole("tab", { name: "和苏轼聊天" }));
+
     expect(within(panelRegion).getByText("先和东坡说两句")).toBeInTheDocument();
     expect(
-      within(panelRegion).getByRole("link", { name: "展开玩法工坊" }),
-    ).toHaveAttribute("href", "/playground?ancestorId=su-shi&source=pet");
-    expect(
-      within(panelRegion).getByRole("link", { name: "进入完整聊天" }),
+      within(panelRegion).getByRole("link", { name: /进入完整聊天/ }),
     ).toHaveAttribute("href", "/chat/su-shi?source=pet");
   });
 

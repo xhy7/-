@@ -304,103 +304,7 @@
 }
 
 .petWorkspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(360px, 0.65fr);
-  gap: 20px;
-  align-items: start;
   margin-bottom: 24px;
-}
-
-.panelPreview {
-  display: grid;
-  gap: 18px;
-}
-
-.panelPreviewHeader {
-  display: grid;
-  gap: 8px;
-}
-
-.panelPreviewTitle {
-  margin: 0;
-  font-size: 1.35rem;
-}
-
-.panelPreviewSummary {
-  margin: 0;
-  color: var(--ink-soft);
-  line-height: 1.75;
-}
-
-.panelGrid {
-  display: grid;
-  gap: 12px;
-}
-
-.panelCard {
-  display: grid;
-  gap: 10px;
-  padding: 16px;
-  border: 1px solid rgba(88, 58, 36, 0.12);
-  border-radius: 8px;
-  background: rgba(255, 251, 243, 0.72);
-}
-
-.panelCardHeader {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-}
-
-.panelState {
-  flex: 0 0 auto;
-  color: var(--seal-red);
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-}
-
-.panelTitle {
-  margin: 0;
-  font-size: 1.02rem;
-}
-
-.panelSummary {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.94rem;
-  line-height: 1.65;
-}
-
-.panelMetrics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.panelMetric {
-  display: grid;
-  gap: 3px;
-  padding: 10px;
-  border-radius: 8px;
-  background: rgba(255, 248, 241, 0.82);
-}
-
-.panelMetric span {
-  color: var(--ink-soft);
-  font-size: 0.78rem;
-}
-
-.panelMetric strong {
-  color: var(--ink-strong);
-  font-size: 0.95rem;
-}
-
-.panelLink {
-  justify-self: start;
-  color: var(--seal-red);
-  font-weight: 700;
-  font-size: 0.92rem;
 }
 
 .entryGrid {
@@ -570,7 +474,6 @@
 
 @media (max-width: 1024px) {
   .header,
-  .petWorkspace,
   .layout,
   .cardGrid,
   .selectorGrid {

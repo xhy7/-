@@ -2,7 +2,11 @@ import type {
   AncestorDetailPreview,
   HomePageData,
   ModeIntentPreview,
+  PetAssetManifest,
 } from "@/shared/contracts/home";
+import suShiManifest from "../../public/pets/su-shi/manifest.json";
+
+const suShiPetManifest = suShiManifest as PetAssetManifest;
 
 export const homePageData: HomePageData = {
   brandTitle: "老祖宗养成计划",
@@ -22,93 +26,7 @@ export const homePageData: HomePageData = {
         displayName: "苏轼",
         title: "东坡居士",
         era: "北宋",
-        assetManifest: {
-          basePath: "/pets/su-shi",
-          previewImageSrc: "/pets/su-shi/preview.png",
-          defaultState: "idle",
-          frameSets: [
-            {
-              state: "idle",
-              framePaths: [
-                "/pets/su-shi/idle/idle-01.png",
-                "/pets/su-shi/idle/idle-02.png",
-                "/pets/su-shi/idle/idle-03.png",
-                "/pets/su-shi/idle/idle-04.png",
-              ],
-              frameMs: 900,
-              loop: true,
-            },
-            {
-              state: "greet",
-              framePaths: [
-                "/pets/su-shi/greet/greet-01.png",
-                "/pets/su-shi/greet/greet-02.png",
-                "/pets/su-shi/greet/greet-03.png",
-              ],
-              frameMs: 700,
-              loop: false,
-            },
-            {
-              state: "talk",
-              framePaths: [
-                "/pets/su-shi/talk/talk-01.png",
-                "/pets/su-shi/talk/talk-02.png",
-                "/pets/su-shi/talk/talk-03.png",
-              ],
-              frameMs: 520,
-              loop: true,
-            },
-            {
-              state: "poem",
-              framePaths: [
-                "/pets/su-shi/poem/poem-01.png",
-                "/pets/su-shi/poem/poem-02.png",
-                "/pets/su-shi/poem/poem-03.png",
-                "/pets/su-shi/poem/poem-04.png",
-              ],
-              frameMs: 760,
-              loop: false,
-            },
-            {
-              state: "dragging",
-              framePaths: [
-                "/pets/su-shi/dragging/dragging-01.png",
-                "/pets/su-shi/dragging/dragging-02.png",
-              ],
-              frameMs: 500,
-              loop: true,
-            },
-            {
-              state: "happy",
-              framePaths: [
-                "/pets/su-shi/happy/happy-01.png",
-                "/pets/su-shi/happy/happy-02.png",
-                "/pets/su-shi/happy/happy-03.png",
-              ],
-              frameMs: 650,
-              loop: false,
-            },
-            {
-              state: "annoyed",
-              framePaths: [
-                "/pets/su-shi/annoyed/annoyed-01.png",
-                "/pets/su-shi/annoyed/annoyed-02.png",
-                "/pets/su-shi/annoyed/annoyed-03.png",
-              ],
-              frameMs: 680,
-              loop: false,
-            },
-            {
-              state: "sleep",
-              framePaths: [
-                "/pets/su-shi/sleep/sleep-01.png",
-                "/pets/su-shi/sleep/sleep-02.png",
-              ],
-              frameMs: 1100,
-              loop: true,
-            },
-          ],
-        },
+        assetManifest: suShiPetManifest,
         supportedActions: [
           "idle",
           "greet",
