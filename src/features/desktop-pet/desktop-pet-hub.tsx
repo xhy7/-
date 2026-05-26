@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useSyncExternalStore, useState } from "react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+  useState,
+} from "react";
 
 import type { DesktopPetConfig, DesktopPetPanelId } from "@/shared/contracts/home";
 import { SectionHeading, TagPill } from "@/shared/ui/primitives";
@@ -92,6 +98,13 @@ export function DesktopPetHub({ config, layoutMode }: DesktopPetHubProps) {
   const dockDisabled = actionState === "dragging" || isDragging;
   const panelDisabled = isDragging;
   const showDockHappy = actionState === "happy" && !speechContextLabel;
+  const preloadFramePaths = useMemo(
+    () =>
+      activeCharacter.assetManifest.frameSets.flatMap(
+        (frameSet) => frameSet.framePaths,
+      ),
+    [activeCharacter.assetManifest.frameSets],
+  );
 
   return (
     <section className={`${styles.root} section-shell`} aria-label="桌宠中枢">
@@ -165,6 +178,7 @@ export function DesktopPetHub({ config, layoutMode }: DesktopPetHubProps) {
             actionState={actionState}
             frameSet={frameSet}
             previewFallbackSrc={activeCharacter.assetManifest.previewImageSrc}
+            preloadFramePaths={preloadFramePaths}
             isPoemReveal={isPoemReveal}
             isSleeping={isSleeping}
             isStageFading={isStageFading}

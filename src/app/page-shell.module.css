@@ -24,6 +24,29 @@
   margin-bottom: 24px;
 }
 
+.gatewayHeader {
+  align-items: start;
+  margin-bottom: 14px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.gatewayHeader :global(.display-title) {
+  font-size: clamp(1.9rem, 4vw, 3.4rem);
+  line-height: 1.05;
+}
+
+.gatewayHeader .subtitle {
+  max-width: 620px;
+  margin-top: 10px;
+  font-size: 0.96rem;
+  line-height: 1.7;
+}
+
+.gatewayHeader .brandMeta {
+  margin-bottom: 10px;
+}
+
 .brandMeta {
   display: flex;
   flex-wrap: wrap;
@@ -40,12 +63,11 @@
 }
 
 .userWelcome {
-  margin-top: 18px;
+  margin: 0 0 24px;
   padding: 16px 20px;
   background: linear-gradient(135deg, rgba(88, 58, 36, 0.05), rgba(155, 45, 36, 0.03));
   border-left: 3px solid rgba(155, 45, 36, 0.4);
   border-radius: 8px;
-  max-width: 700px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -189,12 +211,12 @@
 
 .asideBlock {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   align-content: start;
 }
 
 .authEntry {
-  margin-bottom: 14px;
+  margin-bottom: 4px;
 }
 
 .authButtons {

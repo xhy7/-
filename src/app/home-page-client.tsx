@@ -67,7 +67,7 @@ export function HomePageClient({ data }: HomePageClientProps) {
 
   return (
     <main className={`${styles.page} ${styles.pageLarge}`}>
-      <header className={`${styles.header} section-shell`}>
+      <header className={`${styles.header} ${styles.gatewayHeader} section-shell`}>
         <div>
           <div className={styles.brandMeta}>
             <TagPill tone="seal">{data.seasonLabel}</TagPill>
@@ -75,44 +75,6 @@ export function HomePageClient({ data }: HomePageClientProps) {
           </div>
           <h1 className="display-title">{data.brandTitle}</h1>
           <p className={styles.subtitle}>{data.brandSubtitle}</p>
-          
-          {/* 用户欢迎信息 */}
-          {!isLoading && userSession && (
-            <div className={styles.userWelcome}>
-              <div className={styles.userAvatarBlock}>
-                <UserAvatar
-                  glyph={userSession.avatarGlyph}
-                  bondLevel={userSession.bondLevel}
-                  showName
-                  name={userSession.displayName}
-                />
-              </div>
-              <div className={styles.userGreeting}>
-                <span className={styles.welcomeText}>{greeting}，</span>
-                <strong className={styles.userName}>{userSession.displayName}</strong>
-                <span className={styles.userBond}>
-                  羁绊 Lv.{userSession.bondLevel}
-                </span>
-              </div>
-              <div className={styles.userStats}>
-                <div className={styles.stat}>
-                  <span className={styles.statLabel}>对话次数</span>
-                  <strong className={styles.statValue}>{userSession.bondLevel * 5}</strong>
-                </div>
-                <div className={styles.stat}>
-                  <span className={styles.statLabel}>收藏祖宗</span>
-                  <strong className={styles.statValue}>{Math.floor(userSession.bondLevel / 2) + 1}</strong>
-                </div>
-                <div className={styles.stat}>
-                  <span className={styles.statLabel}>今日活跃</span>
-                  <strong className={styles.statValue}>{Math.min(userSession.bondLevel * 2, 10)}</strong>
-                </div>
-              </div>
-              <p className={styles.userGuidance}>
-                {getGuidanceByBondLevel(userSession.bondLevel)}
-              </p>
-            </div>
-          )}
         </div>
         <div className={styles.asideBlock}>
           <div className={styles.authEntry}>
@@ -157,9 +119,46 @@ export function HomePageClient({ data }: HomePageClientProps) {
         </div>
       </section>
 
+      {!isLoading && userSession && (
+        <section className={styles.userWelcome} aria-label="当前用户状态">
+          <div className={styles.userAvatarBlock}>
+            <UserAvatar
+              glyph={userSession.avatarGlyph}
+              bondLevel={userSession.bondLevel}
+              showName
+              name={userSession.displayName}
+            />
+          </div>
+          <div className={styles.userGreeting}>
+            <span className={styles.welcomeText}>{greeting}，</span>
+            <strong className={styles.userName}>{userSession.displayName}</strong>
+            <span className={styles.userBond}>
+              羁绊 Lv.{userSession.bondLevel}
+            </span>
+          </div>
+          <div className={styles.userStats}>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>对话次数</span>
+              <strong className={styles.statValue}>{userSession.bondLevel * 5}</strong>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>收藏祖宗</span>
+              <strong className={styles.statValue}>{Math.floor(userSession.bondLevel / 2) + 1}</strong>
+            </div>
+            <div className={styles.stat}>
+              <span className={styles.statLabel}>今日活跃</span>
+              <strong className={styles.statValue}>{Math.min(userSession.bondLevel * 2, 10)}</strong>
+            </div>
+          </div>
+          <p className={styles.userGuidance}>
+            {getGuidanceByBondLevel(userSession.bondLevel)}
+          </p>
+        </section>
+      )}
+
       <nav aria-label="展开完整页面" className={`${styles.entryGrid} section-shell`}>
         {data.sectionOrder.map((section) => (
-          <a
+          <Link
             key={section.id}
             href={routeMap[section.id]}
             className={styles.entryCard}
@@ -167,7 +166,7 @@ export function HomePageClient({ data }: HomePageClientProps) {
             <span className="eyebrow">{section.eyebrow}</span>
             <strong className={styles.entryTitle}>{section.title}</strong>
             <p className={styles.entrySummary}>{section.summary}</p>
-          </a>
+          </Link>
         ))}
       </nav>
     </main>

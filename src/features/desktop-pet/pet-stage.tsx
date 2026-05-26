@@ -33,6 +33,7 @@ interface PetStageProps {
   actionState: PetActionState;
   frameSet: PetSpriteFrameSet;
   previewFallbackSrc: string;
+  preloadFramePaths?: string[];
   isPoemReveal: boolean;
   isSleeping: boolean;
   isStageFading: boolean;
@@ -64,6 +65,7 @@ export function PetStage({
   actionState,
   frameSet,
   previewFallbackSrc,
+  preloadFramePaths,
   isPoemReveal,
   isSleeping,
   isStageFading,
@@ -279,11 +281,11 @@ export function PetStage({
           onLostPointerCapture={finishDrag}
         >
           <PetSprite
-            key={`${actionState}-${panelSwitchNonce}-${frameSet.framePaths.join("|")}`}
             displayName={displayName}
             title={title}
             frameSet={frameSet}
             previewFallbackSrc={previewFallbackSrc}
+            preloadFramePaths={preloadFramePaths}
             panelSwitchNonce={panelSwitchNonce}
             showDockHappy={showHappyVisual}
             actionState={actionState}

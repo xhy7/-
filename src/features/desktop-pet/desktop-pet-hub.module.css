@@ -283,6 +283,8 @@
   width: 168px;
   height: 168px;
   transition: transform 180ms ease;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .spriteDragging {
@@ -306,11 +308,36 @@
   animation: annoyed-wiggle 420ms ease-in-out;
 }
 
+.spriteFrameStack {
+  position: relative;
+  width: 168px;
+  height: 168px;
+}
+
 .spriteImage {
+  position: absolute;
+  inset: 0;
   width: 168px;
   height: 168px;
   object-fit: contain;
+  opacity: 0;
   filter: drop-shadow(0 14px 24px rgba(47, 36, 29, 0.28));
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.spriteImageActive {
+  opacity: 1;
+}
+
+.spriteAccessibleName {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .spriteGlyph {
