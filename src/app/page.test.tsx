@@ -76,7 +76,7 @@ describe("home page assembly", () => {
     mockMatchMedia();
   });
 
-  it("renders the homepage as a route hub instead of the full feature stack", async () => {
+  it("renders the homepage as a desktop pet content hub", async () => {
     const page = await Page();
 
     render(page);
@@ -87,11 +87,20 @@ describe("home page assembly", () => {
     expect(
       screen.queryByRole("heading", { name: "今日主推祖宗" }),
     ).not.toBeInTheDocument();
+    expect(screen.getByLabelText("苏轼桌宠主界面")).toBeInTheDocument();
     expect(
-      within(screen.getByRole("navigation", { name: "首页功能入口" })).getByText(
-        "古人台",
+      within(
+        screen.getByRole("complementary", { name: "桌宠内容面板" }),
+      ).getByRole("heading", { name: "先在苏轼旁边轻量使用" }),
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("navigation", { name: "展开完整页面" })).getByText(
+        "养成中枢",
       ),
     ).toBeInTheDocument();
+    const header = screen.getByRole("banner");
+    expect(within(header).getByText("桌宠主角")).toBeInTheDocument();
+    expect(within(header).getByText("苏轼 · 东坡居士")).toBeInTheDocument();
   });
 
   it("mounts the desktop pet hub with the home desktop pet config", async () => {
@@ -113,13 +122,13 @@ describe("home page assembly", () => {
     ).toHaveAttribute("href", "/playground?ancestorId=su-shi&source=pet");
   });
 
-  it("renders route links for the three feature pages", async () => {
+  it("keeps lower-priority route links for the three full feature pages", async () => {
     const page = await Page();
 
     render(page);
 
     const navigation = screen.getByRole("navigation", {
-      name: "首页功能入口",
+      name: "展开完整页面",
     });
     const links = within(navigation).getAllByRole("link");
 
@@ -131,6 +140,27 @@ describe("home page assembly", () => {
     expect(within(navigation).getByText("古人台")).toBeInTheDocument();
     expect(within(navigation).getByText("养成中枢")).toBeInTheDocument();
     expect(within(navigation).getByText("玩法入口")).toBeInTheDocument();
+  });
+
+  it("renders desktop pet content panel previews with full page links", async () => {
+    const page = await Page();
+
+    render(page);
+
+    const panelRegion = screen.getByRole("complementary", {
+      name: "桌宠内容面板",
+    });
+
+    expect(within(panelRegion).getByText("苏轼 · 东坡居士")).toBeInTheDocument();
+    expect(within(panelRegion).getByText("微醺灵感 · 知己未满")).toBeInTheDocument();
+    expect(within(panelRegion).getByText("带着苏轼开一局")).toBeInTheDocument();
+    expect(within(panelRegion).getByText("先和东坡说两句")).toBeInTheDocument();
+    expect(
+      within(panelRegion).getByRole("link", { name: "展开玩法工坊" }),
+    ).toHaveAttribute("href", "/playground?ancestorId=su-shi&source=pet");
+    expect(
+      within(panelRegion).getByRole("link", { name: "进入完整聊天" }),
+    ).toHaveAttribute("href", "/chat/su-shi?source=pet");
   });
 
   it("exposes the desktop pet contract for parallel feature work", () => {
@@ -162,12 +192,8 @@ describe("home page assembly", () => {
       panels.map((panel) => [panel.id, panel]),
     );
 
-    expect(panelById.profile?.primaryHref).toBe(
-      "/ancestors?ancestorId=su-shi&source=pet",
-    );
-    expect(panelById.growth?.primaryHref).toBe(
-      "/growth?ancestor=su-shi&source=pet",
-    );
+    expect(panelById.profile?.primaryHref).toBe("/ancestors");
+    expect(panelById.growth?.primaryHref).toBe("/growth");
     expect(panelById.playground?.primaryHref).toBe(
       "/playground?ancestorId=su-shi&source=pet",
     );

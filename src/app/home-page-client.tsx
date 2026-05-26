@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useEffect, useState, useMemo } from "react";
 
 import { DesktopPetHub } from "@/features/desktop-pet";
-import type { HomePageData, UserSession } from "@/shared/contracts/home";
+import type {
+  DesktopPetPanelItem,
+  HomePageData,
+  UserSession,
+} from "@/shared/contracts/home";
 import { TagPill } from "@/shared/ui/primitives";
 import { UserProfile, UserAvatar, authGateway, clearSession } from "@/features/auth";
 
@@ -20,9 +24,29 @@ const routeMap = {
   "playground-entry": "/playground",
 } as const;
 
+const panelToneLabel: Record<DesktopPetPanelItem["actionState"], string> = {
+  idle: "待机",
+  greet: "问候",
+  talk: "说话",
+  poem: "吟诗",
+  dragging: "拖曳",
+  happy: "开心",
+  annoyed: "皱眉",
+  sleep: "小憩",
+};
+
 export function HomePageClient({ data }: HomePageClientProps) {
   const [userSession, setUserSession] = useState<UserSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const defaultPetCharacter =
+    data.desktopPet.characters.find(
+      (character) => character.ancestorId === data.desktopPet.defaultAncestorId,
+    ) ?? data.desktopPet.characters[0];
+  const getQuickIntentHref = (panelId: DesktopPetPanelItem["id"], href?: string) =>
+    href ??
+    data.desktopPet.panelItems.find((panel) => panel.id === panelId)
+      ?.primaryHref ??
+    "/";
 
   useEffect(() => {
     async function loadSession() {
@@ -110,16 +134,16 @@ export function HomePageClient({ data }: HomePageClientProps) {
             </div>
           )}
           
-          <div className={styles.quickActions}>
-            <Link href="/ancestors" className={styles.quickLink}>
-              进入古人台
-            </Link>
-            <Link href="/growth" className={styles.quickLink}>
-              查看养成中枢
-            </Link>
-            <Link href="/playground" className={styles.quickLink}>
-              打开玩法入口
-            </Link>
+          <div className={styles.quickActions} aria-label="桌宠快捷意图">
+            {data.desktopPet.quickIntents.map((intent) => (
+              <Link
+                key={intent.id}
+                href={getQuickIntentHref(intent.panelId, intent.href)}
+                className={styles.quickLink}
+              >
+                {intent.label}
+              </Link>
+            ))}
           </div>
         </div>
         <div className={styles.asideBlock}>
@@ -142,8 +166,10 @@ export function HomePageClient({ data }: HomePageClientProps) {
           <p className="section-body">{data.heroNotice}</p>
           <div className={styles.asideList}>
             <div className={styles.asideItem}>
-              <span>当前主推</span>
-              <strong>{data.featuredAncestor.name} · {data.featuredAncestor.epithet}</strong>
+              <span>桌宠主角</span>
+              <strong>
+                {defaultPetCharacter.displayName} · {defaultPetCharacter.title}
+              </strong>
             </div>
             <div className={styles.asideItem}>
               <span>养成状态</span>
@@ -157,11 +183,52 @@ export function HomePageClient({ data }: HomePageClientProps) {
         </div>
       </header>
 
-      <div className={styles.desktopPetBlock}>
-        <DesktopPetHub config={data.desktopPet} />
-      </div>
+      <section className={styles.petWorkspace} aria-label="苏轼桌宠主界面">
+        <div className={styles.desktopPetBlock}>
+          <DesktopPetHub config={data.desktopPet} />
+        </div>
 
-      <nav aria-label="首页功能入口" className={`${styles.entryGrid} section-shell`}>
+        <aside
+          className={`${styles.panelPreview} section-shell`}
+          aria-label="桌宠内容面板"
+        >
+          <div className={styles.panelPreviewHeader}>
+            <span className="eyebrow">桌宠内容面板</span>
+            <h2 className={styles.panelPreviewTitle}>先在苏轼旁边轻量使用</h2>
+            <p className={styles.panelPreviewSummary}>
+              档案、养成、玩法和聊天都先挂在桌宠上；需要深度操作时，再展开完整页面。
+            </p>
+          </div>
+
+          <div className={styles.panelGrid}>
+            {data.desktopPet.panelItems.map((panel) => (
+              <article key={panel.id} className={styles.panelCard}>
+                <div className={styles.panelCardHeader}>
+                  <span className="eyebrow">{panel.eyebrow}</span>
+                  <span className={styles.panelState}>
+                    {panelToneLabel[panel.actionState]}
+                  </span>
+                </div>
+                <h3 className={styles.panelTitle}>{panel.title}</h3>
+                <p className={styles.panelSummary}>{panel.summary}</p>
+                <div className={styles.panelMetrics}>
+                  {panel.metrics.slice(0, 2).map((metric) => (
+                    <div key={metric.id} className={styles.panelMetric}>
+                      <span>{metric.label}</span>
+                      <strong>{metric.value}</strong>
+                    </div>
+                  ))}
+                </div>
+                <Link href={panel.primaryHref} className={styles.panelLink}>
+                  {panel.primaryCtaLabel}
+                </Link>
+              </article>
+            ))}
+          </div>
+        </aside>
+      </section>
+
+      <nav aria-label="展开完整页面" className={`${styles.entryGrid} section-shell`}>
         {data.sectionOrder.map((section) => (
           <a
             key={section.id}

@@ -8,7 +8,7 @@ export const homePageData: HomePageData = {
   brandTitle: "老祖宗养成计划",
   brandSubtitle: "把史书里的名字，养成会与你斗嘴、作诗、偏心站队的活人。",
   seasonLabel: "卷一 · 东坡试炼季",
-  heroNotice: "从首页进入古人台、养成中枢和玩法入口，先决定今天想和哪位老祖宗继续推进关系。",
+  heroNotice: "先让苏轼桌宠带路，在旁边轻量查看档案、养成、玩法和聊天，再按需展开完整页面。",
   floatingActionLabel: "召唤今日祖宗",
   desktopPet: {
     helperTitle: "桌宠中枢",
@@ -181,7 +181,7 @@ export const homePageData: HomePageData = {
         summary:
           "先在桌宠旁边查看苏轼身份、时代与性格底色，再展开完整古人台继续切换角色。",
         actionState: "greet",
-        primaryHref: "/ancestors?ancestorId=su-shi&source=pet",
+        primaryHref: "/ancestors",
         primaryCtaLabel: "展开人物档案",
         metrics: [
           {
@@ -232,7 +232,7 @@ export const homePageData: HomePageData = {
         summary:
           "在桌宠中快速查看苏轼当前情绪、羁绊阶段和性格向量摘要，再进入养成中枢看完整面板。",
         actionState: "happy",
-        primaryHref: "/growth?ancestor=su-shi&source=pet",
+        primaryHref: "/growth",
         primaryCtaLabel: "展开养成中枢",
         metrics: [
           {
@@ -434,21 +434,21 @@ export const homePageData: HomePageData = {
       id: "shell-mode",
       label: "运行模式",
       value: "当前可体验",
-      note: "首页保留三个核心入口，点击后直接进入对应页面。",
+      note: "首页优先由苏轼桌宠承接档案、养成、玩法和聊天入口。",
       tone: "seal",
     },
     {
       id: "shell-contract",
       label: "接口状态",
-      value: "契约冻结中",
-      note: "首页三大功能区只消费共享合同，不额外加临时 props。",
+      value: "面板契约已挂载",
+      note: "桌宠内容面板只消费共享合同，不额外加临时 props。",
       tone: "ink",
     },
     {
       id: "shell-assembly",
       label: "装配顺序",
-      value: "古人台 -> 养成中枢 -> 玩法入口",
-      note: "首页只保留三大核心入口，避免信息拥挤。",
+      value: "桌宠 -> 面板 -> 完整页",
+      note: "传统页面入口保留为展开完整页面，不再作为首页第一主体验。",
       tone: "muted",
     },
   ],
